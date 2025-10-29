@@ -167,19 +167,24 @@
   const ceil = (x)=> Math.ceil(x);
 
   const state = {
-    step:1, path:[], answers:{}, isTransitioning:false,
+    step:1, path:[], answers:{},
     tags:{ cashflowNegative:null, cause:null, canReduce:null, canIncome:null, debtTrend:null, debtType:null, creditBad:null, dtiHigh:null, creditRisk:null },
     numeric:{ inc:0, living:0, debtpay:0, savingMonthly:0, eme:0 },
     metrics:null, currentQ:'q1'
   };
 
-  const ENDINGS = {/* (เหมือนเดิม ตัดทอนเพื่อย่อ) */};
+  // คลิกล็อกเล็กน้อยกันย้ำ
+  let isClickLocked = false;
+  const lockClick = () => { isClickLocked = true; setTimeout(()=> isClickLocked=false, 180); }
+
+  // ===== ENDINGS =====
+  const ENDINGS = {};
   ENDINGS.A={title:'Ending A — Cashflow Fix',desc:'ติดลบเพราะฟุ่มเฟือย แต่ยังแก้ได้ด้วยการจัดงบและตัดรายจ่ายผูกมัด',plan30:['แช่แข็งบัตร','งดผ่อนของ/สมาชิก','ใช้ระบบซอง','ตั้งเพดานรายจ่าย ≤ 70%'],roadmap12:['1–3: ปิดก้อนเล็ก','4–6: ลดวงเงินบัตร','7–12: โปะก้อนใหญ่'],checklist:['หยุดสร้างหนี้ใหม่','บันทึกรายจ่ายทุกวัน','เคลียร์ของผูกมัด']};
   ENDINGS.B={title:'Ending B — Income Booster',desc:'รายได้ไม่พอของจำเป็น เน้นเพิ่มรายได้ + สวัสดิการ/สหกรณ์',plan30:['หาอาชีพเสริม','ขอ OT/คอมมิชชั่น','ใช้สิทธิช่วยลดรายจ่าย','ประเมินสุขภาพ/เวลา'],roadmap12:['1–3: รายได้สุทธิ > 150% ของค่าใช้จ่ายจำเป็น','4–6: โปะดอกสูง','7–12: เงินฉุกเฉิน 1–3 เดือน'],checklist:['รายได้เสริม ≥ 20% ของค่างวด','ปิดบัตรดอกสูงใบแรก','เพิ่มทักษะระยะยาว']};
   ENDINGS.C={title:'Ending C — Finance Strategy',desc:'ไม่ติดลบแต่จ่ายไม่ถูกจุด ใช้ Avalanche/รีไฟแนนซ์',plan30:['จ่ายมากกว่าขั้นต่ำ 2x','รวม/รีไฟแนนซ์ดอกต่ำ','เรียงโปะตามดอก','พักบัตรหมุนเวียนชั่วคราว'],roadmap12:['1–4: บัตรเหลือ < 50% วงเงิน','5–9: โยกไปดอกต่ำ','10–12: ออม 2 เท่าค่างวด'],checklist:['ปิดดอกสูงใน 12 เดือน','ติดตามยอดคงเหลือ','ตั้งออมอัตโนมัติ ≥10%']};
   ENDINGS.D={title:'Ending D — Restructuring Rescue',desc:'ภาระหนัก/เครดิตเสีย เน้นปรับโครงสร้าง + หยุดดอกบาน',plan30:['ติดต่อปรับโครงสร้าง','พักเงินต้นบางส่วน','ลำดับจ่าย ในระบบ→นอกระบบ','งบเข้ม 60–70% จำเป็น'],roadmap12:['1–3: ดอกคงที่ <10%','4–8: วินัย+เพิ่มรายได้','9–12: โปะต่อเนื่อง'],checklist:['หยุดผิดนัด','ปิดนอกระบบก่อน','เงินฉุกเฉิน ≥ 1 เดือน']};
 
-  // ===== Questions (ย่อเท่าที่จำเป็น) =====
+  // ===== Questions =====
   const Q = {
     q1:{title:'ปัจจุบันเงินเดือนติดลบหรือไม่?',hint:'ถ้ารายจ่ายต่อเดือนมากกว่ารายรับ ถือว่า "ติดลบ"',choices:[
       {key:'yes',label:'ติดลบ',onSelect:()=>{state.tags.cashflowNegative=true;return 'q2A';}},
@@ -228,7 +233,7 @@
       {key:'no',label:'ไม่พลาด',onSelect:()=>{state.tags.creditBad = state.tags.creditBad ?? false; return 'q8_income';}},
       {key:'yes',label:'มีพลาด/ค้าง',onSelect:()=>{state.tags.creditBad = true; return 'q8_income';}}
     ]},
-    // ===== Numeric =====
+    // ===== Numeric (8–12) =====
     q8_income:{title:'รายได้รวมต่อเดือน (บาท)',hint:'รวมเงินเดือนประจำ + รายได้เสริม (ถ้ามี)',input:{type:'number',id:'inp_income',placeholder:'เช่น 30000',min:0},onNext:(v)=>{state.numeric.inc=v;return 'q9_living';}},
     q9_living:{title:'ค่าใช้จ่ายในชีวิตประจำวัน/เดือน (บาท)',hint:'ที่อยู่อาศัย/อาหาร/เดินทาง/สาธารณูปโภค ฯลฯ',input:{type:'number',id:'inp_living',placeholder:'เช่น 18000',min:0},onNext:(v)=>{state.numeric.living=v;return 'q10_debtpay';}},
     q10_debtpay:{title:'จ่ายหนี้ต่อเดือน (บาท)',hint:'รวมค่างวดทุกเจ้าหนี้',input:{type:'number',id:'inp_debtpay',placeholder:'เช่น 6000',min:0},onNext:(v)=>{state.numeric.debtpay=v;return 'q10_5_saving';}},
@@ -241,57 +246,46 @@
 
   function renderQuestion(qid){
     const q=Q[qid]; if(!q) return;
-    state.isTransitioning=false;
 
     el('#qTitle').textContent=q.title;
     el('#qHint').textContent=q.hint||'';
-
     const wrap=el('#choices'); wrap.innerHTML='';
-
-    // reset nav rows
     el('#navRow').classList.add('hidden');
     el('#backOnlyRow').classList.remove('hidden');
 
     if(q.input && q.input.type==='number'){
-      // input box
+      // input
       const box=document.createElement('div');
       box.className='col-span-2';
-      box.innerHTML=`
-        <label class='block'>
-          <input id='${q.input.id}' type='number' inputmode='decimal' min='${q.input.min??0}' class='input' placeholder='${q.input.placeholder||''}' />
-        </label>`;
+      box.innerHTML=`<label class='block'>
+        <input id='${q.input.id}' type='number' inputmode='decimal' min='${q.input.min??0}' class='input' placeholder='${q.input.placeholder||''}' />
+      </label>`;
       wrap.appendChild(box);
 
       // inline nav
       el('#navRow').classList.remove('hidden');
       el('#backOnlyRow').classList.add('hidden');
-      const backInline=el('#btnBackInline');
-      const nextInline=el('#btnNextInline');
-
-      backInline.onclick=goBack; // same handler
 
       const inputEl=document.getElementById(q.input.id);
+      inputEl.focus();
 
-      function submitNumber(){
-        if(state.isTransitioning) return;
+      const submitNumber=()=>{
+        if(isClickLocked) return;
         const raw=inputEl.value.trim();
         const val=parseFloat(raw);
         if(raw===''||isNaN(val)||val<(q.input.min??0)){ alert('กรุณากรอกตัวเลขให้ถูกต้อง'); return; }
-        state.isTransitioning=true;
-        nextInline.disabled=true; // กันคลิกย้ำ
-        const safe=Math.max(q.input.min??0,val);
+        lockClick();
         state.path.push(qid);
-        state.answers[qid]=safe;
-        const next=q.onNext? q.onNext(safe):null;
-        if(next){ goNext(next); } else { state.isTransitioning=false; nextInline.disabled=false; }
-      }
+        state.answers[qid]=Math.max(q.input.min??0,val);
+        const next=q.onNext? q.onNext(state.answers[qid]):null;
+        if(next) goNext(next);
+      };
 
-      // Enter -> next
-      inputEl.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); submitNumber(); }});
-      nextInline.onclick=submitNumber;
-
-      // Prefill (หากย้อนกลับ)
-      const prev=state.answers[qid]; if(prev!=null) inputEl.value=prev;
+      el('#btnBackInline').onclick=goBack;
+      el('#btnNextInline').onclick=submitNumber;
+      inputEl.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); submitNumber(); }});
+      // Prefill when back
+      if(state.answers[qid]!=null) inputEl.value=state.answers[qid];
 
     }else{
       // choices
@@ -305,14 +299,14 @@
           </div>
           <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5 text-slate-400' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 18l6-6-6-6'/></svg>
         </div>`;
-        btn.addEventListener('click',()=>{
-          if(state.isTransitioning) return;
-          state.isTransitioning=true;
+        btn.onclick=()=>{
+          if(isClickLocked) return;
+          lockClick();
           const next=c.onSelect();
           state.path.push(qid);
           state.answers[qid]=c.key;
           goNext(next);
-        });
+        };
         wrap.appendChild(btn);
       });
     }
@@ -334,15 +328,11 @@
   }
 
   function goNext(nextId){
-    if(typeof nextId==='function') nextId=nextId();
-    if(nextId && Q[nextId]){
-      state.step=Math.min(TOTAL_STEPS,state.step+1);
-      renderQuestion(nextId);
-      state.currentQ=nextId;
-      window.scrollTo({top:0,behavior:'smooth'});
-    }else{
-      state.isTransitioning=false;
-    }
+    if(!nextId || !Q[nextId]) return;
+    state.step=Math.min(TOTAL_STEPS,state.step+1);
+    state.currentQ=nextId;
+    renderQuestion(nextId);
+    window.scrollTo({top:0,behavior:'smooth'});
   }
 
   function goBack(){
@@ -364,7 +354,7 @@
     const n=state.numeric||{inc:0,living:0,debtpay:0,savingMonthly:0,eme:0};
     const inc=+n.inc||0, living=+n.living||0, debtPay=+n.debtpay||0, save=+n.savingMonthly||0, eme=+n.eme||0;
 
-    // ✅ สูตรใหม่: หักออมต่อเดือนด้วย
+    // ✅ หัก "ออมต่อเดือน" ในสภาพคล่อง
     const cashflow = inc - living - debtPay - save;
 
     const dti = inc>0 ? (debtPay/inc) : NaN;
@@ -394,7 +384,7 @@
     el('#r_saving').textContent=fmtPct(m.savingRate);
     el('#r_eme').textContent=isFinite(m.emeMonths)? m.emeMonths.toFixed(1)+' เดือน':'-';
 
-    // คำแนะนำตามเกณฑ์: DTI ≤45%, ออม ≥10%, EME ≥3 เดือน
+    // คำแนะนำตามเกณฑ์
     const adv_cf=[];
     if(isFinite(m.cashflow) && m.cashflow<0){ adv_cf.push(`ควรเพิ่มสภาพคล่องอย่างน้อย ${fmtBaht(Math.abs(m.cashflow))}/เดือน (ลดรายจ่าย/เพิ่มรายได้/ชะลอการออมชั่วคราว)`); }
     else adv_cf.push('ดีมาก! สภาพคล่องเป็นบวก — กระจายไปออม/โปะหนี้ดอกสูง');
@@ -474,7 +464,7 @@
 
   // ===== Init =====
   function init(){
-    state.step=1; state.path=[]; state.answers={}; state.isTransitioning=false;
+    state.step=1; state.path=[]; state.answers={};
     state.tags={ cashflowNegative:null, cause:null, canReduce:null, canIncome:null, debtTrend:null, debtType:null, creditBad:null, dtiHigh:null, creditRisk:null };
     state.numeric={ inc:0, living:0, debtpay:0, savingMonthly:0, eme:0 };
     state.metrics=null; state.currentQ='q1';
