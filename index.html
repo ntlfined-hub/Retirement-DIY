@@ -3,491 +3,908 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>แนวทางแก้หนี้ DIY — เกมเลือกเส้นทาง (มินิมอล · พาสเทล)</title>
-
+  <title>เกมตะลุยด่าน · วัดพฤติกรรมการเงิน (12 ด่าน)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
   <style>
     :root{
-      --bg-from:#f8fafc; --bg-to:#f1f5f9;
-      --card:#ffffff; --line:#e5e7eb; --ink:#0f172a; --muted:#64748b;
-      --brand:#7dd3fc; --brand-strong:#38bdf8;
+      --bg-from:#f8fafc; --bg-to:#f1f5f9; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e5e7eb;
+      --primary:#111827; --accent:#6366f1; --success:#10b981; --warn:#f59e0b; --error:#ef4444;
     }
-    body{ font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,'Kanit',sans-serif; color:var(--ink) }
-    .gradient-bg{ background:linear-gradient(135deg,var(--bg-from),var(--bg-to)); }
-    .card{ background:var(--card); border:1px solid var(--line); border-radius:24px; box-shadow:0 10px 30px rgba(2,8,23,.06) }
-    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:.55rem; padding:.9rem 1.05rem; border-radius:999px; border:1px solid var(--line); font-weight:600; transition:transform .06s ease, box-shadow .2s ease }
-    .btn:active{ transform:translateY(1px) }
-    .btn-primary{ background:#111827; color:#fff }
-    .btn-brand{ background:var(--brand-strong); color:#083344 }
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
+    body{ font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif; color:var(--ink); background:linear-gradient(180deg,var(--bg-from),var(--bg-to)) }
+    .card{ background:var(--card); border:1px solid var(--line); border-radius:1rem; box-shadow:0 6px 20px rgba(15,23,42,.06) }
+    .choice{ border:1px solid var(--line); border-radius:1rem; padding:1rem 1.1rem; transition:.18s ease; cursor:pointer; user-select:none }
+    .choice:hover{ transform:translateY(-1px); box-shadow:0 8px 18px rgba(15,23,42,.06) }
+    .choice:active{ transform:translateY(0) scale(.99) }
+    .pill{ border:1px solid var(--line); padding:.25rem .6rem; border-radius:999px; font-size:.8rem; color:var(--muted) }
+    .progress{ height:10px; border-radius:999px; background:#e5e7eb; overflow:hidden }
+    .progress > div{ height:100%; background:linear-gradient(90deg,var(--accent),#8b5cf6); width:0% }
+    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:.5rem; border-radius:.9rem; padding:.9rem 1.1rem; border:1px solid var(--line); background:#111827; color:#fff; transition:.18s }
+    .btn:hover{ filter:brightness(1.05) }
     .btn-ghost{ background:#fff; color:var(--ink) }
-    .choice{ border:1px solid var(--line); border-radius:18px; padding:1rem; cursor:pointer; transition:transform .08s ease, box-shadow .2s ease, border-color .2s ease; background:#fff }
-    .choice:hover{ transform:translateY(-1px); box-shadow:0 10px 26px rgba(2,8,23,.08); border-color:#dbeafe }
-    .badge{ display:inline-flex; align-items:center; gap:.45rem; padding:.32rem .7rem; border-radius:999px; border:1px solid var(--line); font-size:.8rem; color:var(--muted); background:#fff }
-    .pill{ border:1px dashed var(--line); padding:.45rem .8rem; border-radius:999px; font-size:.82rem; color:var(--muted); background:#fff }
-    .progress{ height:12px; background:#e2e8f0; border-radius:999px; overflow:hidden }
-    .progress>span{ display:block; height:100%; background:linear-gradient(90deg,#a5b4fc,#7dd3fc) }
-    .input{ width:100%; border:1px solid var(--line); border-radius:16px; padding:.9rem 1rem; font-size:1.05rem; background:#fff; outline:none }
-    .input:focus{ border-color:#c7d2fe; box-shadow:0 0 0 6px rgba(165,180,252,.25) }
-    .metric-card{ text-align:center; display:flex; flex-direction:column; align-items:center }
-    .advice{ font-size:.78rem; color:#475569; margin-top:.4rem }
-    @media print{ .hidden-print{ display:none !important } .card{ box-shadow:none } }
+    .btn-ghost:hover{ background:#f8fafc }
+    .fade-enter{ animation:fadeIn .15s ease both }
+    @keyframes fadeIn{ from{ opacity:.0; transform:translateY(4px) } to{ opacity:1; transform:translateY(0) } }
+    .grid-cards{ display:grid; grid-template-columns:1fr; gap:.8rem }
+    @media (min-width:480px){ .grid-cards{ grid-template-columns:1fr 1fr } }
+    @media (min-width:920px){ .shell{ max-width:880px } }
   </style>
 </head>
-<body class="gradient-bg min-h-screen">
-
-  <!-- Header -->
-  <header class="sticky top-0 z-40 backdrop-blur bg-white/70 border-b border-slate-200">
-    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-sky-100 flex items-center justify-center shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6v12"/><path d="M17 12H7"/></svg>
-        </div>
-        <div>
-          <h1 class="text-lg font-bold leading-tight">แนวทางแก้หนี้ DIY — เกมเลือกเส้นทาง</h1>
-          <p class="text-sm text-slate-500"><span id="totalStepsText"></span> • มินิมอล • โค้งมน • พาสเทล</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <button id="btnPrint" class="btn btn-ghost hidden-print" type="button">พิมพ์สรุป</button>
-        <button id="btnReset" class="btn btn-primary hidden-print" type="button">เริ่มใหม่</button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main -->
-  <main class="max-w-4xl mx-auto px-4 py-6 space-y-5">
-
-    <!-- Progress -->
-    <section class="card p-4">
-      <div class="flex items-center justify-between mb-2">
-        <span class="badge"><span id="stepLabel">คำถามที่ 1</span><span>จาก <span id="totalSteps">12</span></span></span>
-        <span class="pill" id="pathBadge">เริ่มต้น</span>
-      </div>
-      <div class="progress"><span id="progressBar" style="width:8.3%"></span></div>
-    </section>
-
-    <!-- Question Card -->
-    <section id="qaCard" class="card p-5">
-      <div class="flex items-start gap-3 mb-4">
-        <div class="w-9 h-9 rounded-2xl bg-sky-100 flex items-center justify-center shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
-        </div>
-        <div class="flex-1">
-          <h2 id="qTitle" class="text-xl font-semibold leading-snug mb-1">ปัจจุบันเงินเดือนติดลบหรือไม่?</h2>
-          <p id="qHint" class="text-sm text-slate-500">เลือกระหว่าง 2 ตัวเลือก เพื่อไปยังคำถามถัดไป</p>
-        </div>
-      </div>
-
-      <div id="choices" class="grid sm:grid-cols-2 gap-3"></div>
-
-      <!-- แถวปุ่มสำหรับ “หน้ากรอกตัวเลข” -->
-      <div id="navRow" class="mt-5 hidden">
+<body>
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="shell w-full">
+      <header class="mb-4">
         <div class="flex items-center justify-between">
-          <button id="btnBackInline" class="btn btn-ghost" type="button">ย้อนกลับ</button>
-          <button id="btnNextInline" class="btn btn-brand" type="button">ถัดไป</button>
+          <div class="text-sm text-slate-500 pill">เกมตะลุยด่านการเงิน · 12 ด่าน</div>
+          <button id="btnReset" class="text-sm text-slate-500 hover:text-slate-700 underline">เริ่มใหม่</button>
         </div>
-      </div>
+        <div class="mt-3 progress"><div id="bar" style="width:0%"></div></div>
+        <div id="stepLabel" class="mt-2 text-sm text-slate-600">พร้อมเริ่ม</div>
+      </header>
 
-      <!-- ปุ่มย้อนกลับ (ใช้กับหน้าตัวเลือก) -->
-      <div id="backOnlyRow" class="flex items-center justify-between mt-5">
-        <button id="btnBack" class="btn btn-ghost hidden-print" disabled type="button">ย้อนกลับ</button>
-        <span></span>
-      </div>
-    </section>
+      <main id="stage" class="card p-4 md:p-6 fade-enter">
+        <!-- เนื้อหาแต่ละด่านจะถูกเรนเดอร์ด้วย JS -->
+      </main>
 
-    <!-- Result Card -->
-    <section id="resultCard" class="card p-6 hidden">
-      <div class="flex items-start gap-3 mb-4">
-        <div class="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center shrink-0 shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12l9-5-9-5-9 5 9 5z"/></svg>
-        </div>
-        <div>
-          <h2 class="text-2xl font-bold leading-tight mb-1">สรุปแนวทางที่เหมาะกับคุณ</h2>
-          <p class="text-sm text-slate-500">Action Plan 30 วัน • Roadmap 12 เดือน • Checklist</p>
-        </div>
-      </div>
-
-      <div id="endingBadge" class="mb-4"></div>
-
-      <!-- Metrics (กลาง + Advice) -->
-      <div id="metricsAttach" class="grid md:grid-cols-4 gap-3 mb-4 hidden">
-        <div class="card p-4 metric-card">
-          <div class="text-sm text-slate-500">สภาพคล่อง/เดือน</div>
-          <div id="r_cashflow" class="text-2xl font-bold mt-0.5">-</div>
-          <div id="a_cashflow" class="advice"></div>
-        </div>
-        <div class="card p-4 metric-card">
-          <div class="text-sm text-slate-500">DTI</div>
-          <div id="r_dti" class="text-2xl font-bold mt-0.5">-</div>
-          <div id="a_dti" class="advice"></div>
-        </div>
-        <div class="card p-4 metric-card">
-          <div class="text-sm text-slate-500">อัตราออม</div>
-          <div id="r_saving" class="text-2xl font-bold mt-0.5">-</div>
-          <div id="a_saving" class="advice"></div>
-        </div>
-        <div class="card p-4 metric-card">
-          <div class="text-sm text-slate-500">เงินฉุกเฉิน (เดือน)</div>
-          <div id="r_eme" class="text-2xl font-bold mt-0.5">-</div>
-          <div id="a_eme" class="advice"></div>
-        </div>
-      </div>
-
-      <div class="grid md:grid-cols-2 gap-4">
-        <div class="card p-4">
-          <h3 class="font-semibold text-lg mb-2">Action Plan 30 วันแรก</h3>
-          <ul id="plan30" class="list-disc pl-5 space-y-1"></ul>
-        </div>
-        <div class="card p-4">
-          <h3 class="font-semibold text-lg mb-2">Roadmap จัดการหนี้ 12 เดือน</h3>
-          <ul id="roadmap12" class="list-disc pl-5 space-y-1"></ul>
-        </div>
-      </div>
-
-      <div class="card p-4 mt-4">
-        <h3 class="font-semibold text-lg mb-2">Checklist ต้องทำทันที</h3>
-        <ul id="checklist" class="list-check space-y-2"></ul>
-      </div>
-
-      <div class="flex flex-wrap gap-2 mt-5 hidden-print">
-        <button id="btnCopy" class="btn btn-brand" type="button">คัดลอกสรุป</button>
-        <button id="btnStartOver" class="btn btn-primary" type="button">เริ่มใหม่</button>
-      </div>
-    </section>
-
-  </main>
+      <footer class="mt-4 flex items-center justify-between">
+        <button id="btnBack" class="btn btn-ghost" disabled>ย้อนกลับ</button>
+        <div class="text-slate-400 text-sm">Fin-Ed / FIN-JOD · Card Game Style</div>
+      </footer>
+    </div>
+  </div>
 
   <script>
-  // ===== Config & Helpers =====
-  const TOTAL_STEPS = 12;
-  const fmtBaht = (n)=> (isFinite(n)? new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB',maximumFractionDigits:0}).format(n):'-');
-  const fmtPct  = (x)=> (isFinite(x)? (x*100).toFixed(0)+'%':'-');
-  const ceil = (x)=> Math.ceil(x);
+    /******************************************************************
+     * GAME ENGINE — Card Game Style (12 Steps + Branching)
+     * ภาษาไทย, ภาษาง่าย, สรุปหลังจบเกมเท่านั้น
+     ******************************************************************/
+    const MAX_STEPS = 12;
 
-  const state = {
-    step:1, path:[], answers:{},
-    tags:{ cashflowNegative:null, cause:null, canReduce:null, canIncome:null, debtTrend:null, debtType:null, creditBad:null, dtiHigh:null, creditRisk:null },
-    numeric:{ inc:0, living:0, debtpay:0, savingMonthly:0, eme:0 },
-    metrics:null, currentQ:'q1'
-  };
+    // เก็บสถานะผู้เล่น
+    const state = {
+      step: 0,
+      path: [],                   // เก็บ id ของคำถามที่ตอบแล้ว
+      answers: {},               // {id: key ของ option}
+      visited: {                 // รับประกันถามครบทุกมิติ
+        income: false,  // รายได้
+        expense: false, // รายจ่ายในชีวิตประจำวัน
+        debt: false,    // รายจ่ายหนี้ / DTI
+        saving: false,  // เงินออมเผื่อฉุกเฉิน
+        invest: false   // การลงทุน
+      },
+      facts: { // ตัวชี้วัดที่ใช้สรุปผล
+        feeling: null,           // ตึง/พออยู่/เหลือ
+        causeTight: null,        // expense/debt/income
+        expenseFocus: null,      // food/shopping/bills
+        debtStatus: null,        // minpay/multi/highrate
+        dtiBand: null,           // high/mid/ok
+        monthEndLeft: null,      // none/some/steady
+        emergencyMonths: null,   // 0, <1, 1-3, >3
+        investLevel: null,       // none/some/serious
+        saveRate: null,          // <10 / 10-20 / >20
+        growPriority: null       // goal cluster
+      }
+    };
 
-  // คลิกล็อกเล็กน้อยกันย้ำ
-  let isClickLocked = false;
-  const lockClick = () => { isClickLocked = true; setTimeout(()=> isClickLocked=false, 180); }
+    // ยูทิล
+    const $ = sel => document.querySelector(sel);
+    const stage = $("#stage");
+    const bar = $("#bar");
+    const stepLabel = $("#stepLabel");
+    const btnBack = $("#btnBack");
+    const btnReset = $("#btnReset");
 
-  // ===== ENDINGS =====
-  const ENDINGS = {};
-  ENDINGS.A={title:'Ending A — Cashflow Fix',desc:'ติดลบเพราะฟุ่มเฟือย แต่ยังแก้ได้ด้วยการจัดงบและตัดรายจ่ายผูกมัด',plan30:['แช่แข็งบัตร','งดผ่อนของ/สมาชิก','ใช้ระบบซอง','ตั้งเพดานรายจ่าย ≤ 70%'],roadmap12:['1–3: ปิดก้อนเล็ก','4–6: ลดวงเงินบัตร','7–12: โปะก้อนใหญ่'],checklist:['หยุดสร้างหนี้ใหม่','บันทึกรายจ่ายทุกวัน','เคลียร์ของผูกมัด']};
-  ENDINGS.B={title:'Ending B — Income Booster',desc:'รายได้ไม่พอของจำเป็น เน้นเพิ่มรายได้ + สวัสดิการ/สหกรณ์',plan30:['หาอาชีพเสริม','ขอ OT/คอมมิชชั่น','ใช้สิทธิช่วยลดรายจ่าย','ประเมินสุขภาพ/เวลา'],roadmap12:['1–3: รายได้สุทธิ > 150% ของค่าใช้จ่ายจำเป็น','4–6: โปะดอกสูง','7–12: เงินฉุกเฉิน 1–3 เดือน'],checklist:['รายได้เสริม ≥ 20% ของค่างวด','ปิดบัตรดอกสูงใบแรก','เพิ่มทักษะระยะยาว']};
-  ENDINGS.C={title:'Ending C — Finance Strategy',desc:'ไม่ติดลบแต่จ่ายไม่ถูกจุด ใช้ Avalanche/รีไฟแนนซ์',plan30:['จ่ายมากกว่าขั้นต่ำ 2x','รวม/รีไฟแนนซ์ดอกต่ำ','เรียงโปะตามดอก','พักบัตรหมุนเวียนชั่วคราว'],roadmap12:['1–4: บัตรเหลือ < 50% วงเงิน','5–9: โยกไปดอกต่ำ','10–12: ออม 2 เท่าค่างวด'],checklist:['ปิดดอกสูงใน 12 เดือน','ติดตามยอดคงเหลือ','ตั้งออมอัตโนมัติ ≥10%']};
-  ENDINGS.D={title:'Ending D — Restructuring Rescue',desc:'ภาระหนัก/เครดิตเสีย เน้นปรับโครงสร้าง + หยุดดอกบาน',plan30:['ติดต่อปรับโครงสร้าง','พักเงินต้นบางส่วน','ลำดับจ่าย ในระบบ→นอกระบบ','งบเข้ม 60–70% จำเป็น'],roadmap12:['1–3: ดอกคงที่ <10%','4–8: วินัย+เพิ่มรายได้','9–12: โปะต่อเนื่อง'],checklist:['หยุดผิดนัด','ปิดนอกระบบก่อน','เงินฉุกเฉิน ≥ 1 เดือน']};
+    // เรนเดอร์การ์ดตัวเลือก
+    function renderQuestion(q){
+      state.step = Math.min(state.step+1, MAX_STEPS); // เพิ่มด่านที่แสดง
+      updateProgress();
 
-  // ===== Questions =====
-  const Q = {
-    q1:{title:'ปัจจุบันเงินเดือนติดลบหรือไม่?',hint:'ถ้ารายจ่ายต่อเดือนมากกว่ารายรับ ถือว่า "ติดลบ"',choices:[
-      {key:'yes',label:'ติดลบ',onSelect:()=>{state.tags.cashflowNegative=true;return 'q2A';}},
-      {key:'no',label:'ไม่ติดลบ',onSelect:()=>{state.tags.cashflowNegative=false;return 'q2B';}}
-    ]},
-    q2A:{title:'สาเหตุหลักของการติดลบคืออะไร?',choices:[
-      {key:'lux',label:'ใช้ฟุ่มเฟือยเกินความจำเป็น',onSelect:()=>{state.tags.cause='lux';return 'q3A1';}},
-      {key:'need',label:'ของจำเป็นเยอะ รายได้ยังไม่พอ',onSelect:()=>{state.tags.cause='need';return 'q3A2';}}
-    ]},
-    q3A1:{title:'พร้อมลดค่าใช้จ่ายฟุ่มเฟือยทันทีไหม?',choices:[
-      {key:'yes',label:'พร้อมลด',onSelect:()=>{state.tags.canReduce=true;return 'q4A1';}},
-      {key:'no',label:'ยังลดไม่ได้',onSelect:()=>{state.tags.canReduce=false;return 'q4A1';}}
-    ]},
-    q3A2:{title:'มีโอกาสหารายได้เสริมได้ไหม?',choices:[
-      {key:'yes',label:'พอหาได้',onSelect:()=>{state.tags.canIncome=true;return 'q4A2';}},
-      {key:'no',label:'ไม่มีเวลา/สุขภาพไม่เอื้อ',onSelect:()=>{state.tags.canIncome=false;return 'q4A2';}}
-    ]},
-    q4A1:{title:'มีค่าใช้จ่ายผูกมัดที่ปรับลดได้ไหม?',choices:[{key:'y',label:'มี',onSelect:()=> 'q5C'},{key:'n',label:'ไม่มี',onSelect:()=> 'q5C'}]},
-    q4A2:{title:'เพิ่มรายได้ในงานปัจจุบันได้ไหม?',choices:[{key:'y',label:'พอเพิ่มได้',onSelect:()=> 'q5C'},{key:'n',label:'เพิ่มไม่ได้',onSelect:()=> 'q5C'}]},
-    q2B:{title:'หนี้ของคุณกำลังโตขึ้นหรือไม่?',choices:[
-      {key:'up',label:'โตขึ้น',onSelect:()=>{state.tags.debtTrend='up';return 'q3B1';}},
-      {key:'flat',label:'คงที่/เริ่มลดแล้ว',onSelect:()=>{state.tags.debtTrend='flat';return 'q3B2';}}
-    ]},
-    q3B1:{title:'หนี้แบบไหนเป็นหลัก?',choices:[
-      {key:'hi',label:'ดอกสูง (บัตร/บุคคล)',onSelect:()=>{state.tags.debtType='hi';return 'q4Common';}},
-      {key:'long',label:'ระยะยาว (บ้าน/รถ)',onSelect:()=>{state.tags.debtType='long';return 'q4Common';}}
-    ]},
-    q3B2:{title:'มีเป้าหมายปลดหนี้ชัดเจนไหม?',choices:[{key:'y',label:'ชัดเจน',onSelect:()=> 'q4Common'},{key:'n',label:'ยังไม่มี',onSelect:()=> 'q4Common'}]},
-    q4Common:{title:'เคยชำระล่าช้าหรือเครดิตเสียหรือไม่?',choices:[
-      {key:'no',label:'ไม่เคย',onSelect:()=>{state.tags.creditBad=false;return 'q5Common';}},
-      {key:'yes',label:'เคย/อยู่ระหว่าง',onSelect:()=>{state.tags.creditBad=true;return 'q5Common';}}
-    ]},
-    q5C:{title:'เคยชำระล่าช้าหรือเครดิตเสียหรือไม่?',choices:[
-      {key:'no',label:'ไม่เคย',onSelect:()=>{state.tags.creditBad=false;return 'q6Common';}},
-      {key:'yes',label:'เคย/อยู่ระหว่าง',onSelect:()=>{state.tags.creditBad=true;return 'q6Common';}}
-    ]},
-    q5Common:{title:'ยอดหนี้รวมมากกว่า 6 เท่าของรายได้ต่อปีหรือไม่?',choices:[
-      {key:'no',label:'ไม่เกิน 6 เท่า',onSelect:()=>{state.tags.dtiHigh=false;return 'q6Common';}},
-      {key:'yes',label:'เกิน 6 เท่า',onSelect:()=>{state.tags.dtiHigh=true;return 'q6Common';}}
-    ]},
-    q6Common:{title:'ตอนนี้จ่ายมากกว่าขั้นต่ำได้หรือไม่?',choices:[
-      {key:'y',label:'พอจ่ายได้',onSelect:()=> 'q7Final'},
-      {key:'n',label:'ยังทำไม่ได้',onSelect:()=> 'q7Final'}
-    ]},
-    q7Final:{title:'คุณพลาดจ่าย/ค้างจ่ายใน 3 เดือนล่าสุดไหม?',choices:[
-      {key:'no',label:'ไม่พลาด',onSelect:()=>{state.tags.creditBad = state.tags.creditBad ?? false; return 'q8_income';}},
-      {key:'yes',label:'มีพลาด/ค้าง',onSelect:()=>{state.tags.creditBad = true; return 'q8_income';}}
-    ]},
-    // ===== Numeric (8–12) =====
-    q8_income:{title:'รายได้รวมต่อเดือน (บาท)',hint:'รวมเงินเดือนประจำ + รายได้เสริม (ถ้ามี)',input:{type:'number',id:'inp_income',placeholder:'เช่น 30000',min:0},onNext:(v)=>{state.numeric.inc=v;return 'q9_living';}},
-    q9_living:{title:'ค่าใช้จ่ายในชีวิตประจำวัน/เดือน (บาท)',hint:'ที่อยู่อาศัย/อาหาร/เดินทาง/สาธารณูปโภค ฯลฯ',input:{type:'number',id:'inp_living',placeholder:'เช่น 18000',min:0},onNext:(v)=>{state.numeric.living=v;return 'q10_debtpay';}},
-    q10_debtpay:{title:'จ่ายหนี้ต่อเดือน (บาท)',hint:'รวมค่างวดทุกเจ้าหนี้',input:{type:'number',id:'inp_debtpay',placeholder:'เช่น 6000',min:0},onNext:(v)=>{state.numeric.debtpay=v;return 'q10_5_saving';}},
-    q10_5_saving:{title:'ออมต่อเดือน (บาท)',hint:'ยอดที่ออมจริงทุกเดือน (ถ้ายังไม่ออม ให้ใส่ 0)',input:{type:'number',id:'inp_saving',placeholder:'เช่น 3000',min:0},onNext:(v)=>{state.numeric.savingMonthly=v;return 'q11_eme';}},
-    q11_eme:{title:'ปัจจุบันมีเงินออมสะสมทั้งหมด (บาท)',hint:'ใช้ประเมินเงินฉุกเฉิน (เดือน)',input:{type:'number',id:'inp_eme',placeholder:'เช่น 10000',min:0},onNext:(v)=>{state.numeric.eme=v;finishWithNumbers();}}
-  };
+      stage.innerHTML = `
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-xs text-slate-500">ด่าน ${state.step}/${MAX_STEPS}</div>
+          <div class="pill">${q.tag}</div>
+        </div>
+        <h1 class="text-xl md:text-2xl font-semibold leading-snug">${q.text}</h1>
+        ${q.sub ? `<p class="mt-2 text-slate-600">${q.sub}</p>`:''}
+        <div class="mt-4 grid-cards" id="choices"></div>
+      `;
 
-  // ===== DOM =====
-  const el=(s)=>document.querySelector(s);
-
-  function renderQuestion(qid){
-    const q=Q[qid]; if(!q) return;
-
-    el('#qTitle').textContent=q.title;
-    el('#qHint').textContent=q.hint||'';
-    const wrap=el('#choices'); wrap.innerHTML='';
-    el('#navRow').classList.add('hidden');
-    el('#backOnlyRow').classList.remove('hidden');
-
-    if(q.input && q.input.type==='number'){
-      // input
-      const box=document.createElement('div');
-      box.className='col-span-2';
-      box.innerHTML=`<label class='block'>
-        <input id='${q.input.id}' type='number' inputmode='decimal' min='${q.input.min??0}' class='input' placeholder='${q.input.placeholder||''}' />
-      </label>`;
-      wrap.appendChild(box);
-
-      // inline nav
-      el('#navRow').classList.remove('hidden');
-      el('#backOnlyRow').classList.add('hidden');
-
-      const inputEl=document.getElementById(q.input.id);
-      inputEl.focus();
-
-      const submitNumber=()=>{
-        if(isClickLocked) return;
-        const raw=inputEl.value.trim();
-        const val=parseFloat(raw);
-        if(raw===''||isNaN(val)||val<(q.input.min??0)){ alert('กรุณากรอกตัวเลขให้ถูกต้อง'); return; }
-        lockClick();
-        state.path.push(qid);
-        state.answers[qid]=Math.max(q.input.min??0,val);
-        const next=q.onNext? q.onNext(state.answers[qid]):null;
-        if(next) goNext(next);
-      };
-
-      el('#btnBackInline').onclick=goBack;
-      el('#btnNextInline').onclick=submitNumber;
-      inputEl.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); submitNumber(); }});
-      // Prefill when back
-      if(state.answers[qid]!=null) inputEl.value=state.answers[qid];
-
-    }else{
-      // choices
-      q.choices.forEach((c,idx)=>{
-        const btn=document.createElement('button');
-        btn.type='button'; btn.className='choice text-left';
-        btn.innerHTML=`<div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <span class="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center font-semibold border border-slate-200">${idx+1}</span>
-            <span class="font-semibold">${c.label}</span>
+      const wrap = $("#choices");
+      q.options.forEach(opt=>{
+        const div = document.createElement('button');
+        div.className = "choice text-left";
+        div.setAttribute('data-key', opt.key);
+        div.innerHTML = `
+          <div class="flex gap-3 items-start">
+            <div class="text-2xl">${opt.icon || '🟦'}</div>
+            <div>
+              <div class="font-semibold">${opt.label}</div>
+              ${opt.hint ? `<div class="text-sm text-slate-500 mt-1">${opt.hint}</div>`:''}
+            </div>
           </div>
-          <svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5 text-slate-400' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 18l6-6-6-6'/></svg>
-        </div>`;
-        btn.onclick=()=>{
-          if(isClickLocked) return;
-          lockClick();
-          const next=c.onSelect();
-          state.path.push(qid);
-          state.answers[qid]=c.key;
-          goNext(next);
-        };
-        wrap.appendChild(btn);
+        `;
+        div.addEventListener('click', ()=>{
+          // บันทึกคำตอบ
+          state.answers[q.id] = opt.key;
+          state.path.push(q.id);
+          // อัปเดตแฟ็กต์/มิติ
+          if(q.affect) q.affect(opt.key, state);
+          // ไปด่านถัดไป
+          nextFrom(opt, q);
+        });
+        wrap.appendChild(div);
       });
+
+      // ปุ่มย้อนกลับ
+      btnBack.disabled = state.path.length===0;
     }
 
-    // progress + path
-    el('#stepLabel').textContent=`คำถามที่ ${state.step}`;
-    const pct=Math.max(1,Math.min(TOTAL_STEPS,state.step))/TOTAL_STEPS*100;
-    el('#progressBar').style.width=pct+'%';
-    el('#btnBack').disabled=state.step<=1;
-
-    const b=[];
-    if(state.tags.cashflowNegative===true) b.push('ติดลบ');
-    if(state.tags.cashflowNegative===false) b.push('ไม่ติดลบ');
-    if(state.tags.cause==='lux') b.push('ฟุ่มเฟือย');
-    if(state.tags.cause==='need') b.push('จำเป็นเยอะ');
-    if(state.tags.debtTrend==='up') b.push('หนี้โต');
-    if(state.tags.debtTrend==='flat') b.push('หนี้คงที่/ลด');
-    el('#pathBadge').textContent=b.length? b.join(' • '):'เริ่มต้น';
-  }
-
-  function goNext(nextId){
-    if(!nextId || !Q[nextId]) return;
-    state.step=Math.min(TOTAL_STEPS,state.step+1);
-    state.currentQ=nextId;
-    renderQuestion(nextId);
-    window.scrollTo({top:0,behavior:'smooth'});
-  }
-
-  function goBack(){
-    if(state.step<=1) return;
-    const lastQ=state.path.pop(); if(!lastQ) return;
-    state.step-=1;
-    state.currentQ=lastQ;
-    renderQuestion(lastQ);
-    window.scrollTo({top:0,behavior:'smooth'});
-  }
-
-  function deriveTagsFromMetrics(m){
-    state.tags.cashflowNegative=(m.cashflow<0);
-    state.tags.dtiHigh=(m.dti>=0.45);      // DTI ไม่ควรเกิน 45%
-    state.tags.creditRisk=(m.dti>=0.6);
-  }
-
-  function finishWithNumbers(){
-    const n=state.numeric||{inc:0,living:0,debtpay:0,savingMonthly:0,eme:0};
-    const inc=+n.inc||0, living=+n.living||0, debtPay=+n.debtpay||0, save=+n.savingMonthly||0, eme=+n.eme||0;
-
-    // ✅ หัก "ออมต่อเดือน" ในสภาพคล่อง
-    const cashflow = inc - living - debtPay - save;
-
-    const dti = inc>0 ? (debtPay/inc) : NaN;
-    const savingRate = inc>0 ? (save/inc) : NaN;
-    const emeMonths = living>0 ? (eme/living) : NaN;
-
-    state.metrics={inc,living,debtPay,save,cashflow,dti,savingRate,emeMonths};
-    deriveTagsFromMetrics(state.metrics);
-
-    let ending='D';
-    const t=state.tags;
-    if(t.creditBad===true || t.dtiHigh===true) ending='D';
-    else if(t.cashflowNegative) ending=(t.cause==='lux')?'A':'B';
-    else ending='C';
-
-    state.step=TOTAL_STEPS;
-    el('#stepLabel').textContent='เสร็จสิ้น';
-    el('#progressBar').style.width='100%';
-    showResult(ending);
-  }
-
-  function attachResultMetrics(m){
-    const box=el('#metricsAttach'); box.classList.remove('hidden');
-
-    el('#r_cashflow').textContent=fmtBaht(m.cashflow);
-    el('#r_dti').textContent=fmtPct(m.dti);
-    el('#r_saving').textContent=fmtPct(m.savingRate);
-    el('#r_eme').textContent=isFinite(m.emeMonths)? m.emeMonths.toFixed(1)+' เดือน':'-';
-
-    // คำแนะนำตามเกณฑ์
-    const adv_cf=[];
-    if(isFinite(m.cashflow) && m.cashflow<0){ adv_cf.push(`ควรเพิ่มสภาพคล่องอย่างน้อย ${fmtBaht(Math.abs(m.cashflow))}/เดือน (ลดรายจ่าย/เพิ่มรายได้/ชะลอการออมชั่วคราว)`); }
-    else adv_cf.push('ดีมาก! สภาพคล่องเป็นบวก — กระจายไปออม/โปะหนี้ดอกสูง');
-
-    const adv_dti=[];
-    if(isFinite(m.dti)){
-      const maxDebtPay=0.45*(m.inc||0);
-      if(m.dti>0.45){
-        const gap=Math.max(0,m.debtPay-maxDebtPay);
-        adv_dti.push(`DTI เกินเกณฑ์ — ลดค่างวดอย่างน้อย ${fmtBaht(gap)}/เดือน หรือเพิ่มรายได้เพื่อให้ค่างวดรวม ≤ ${fmtBaht(maxDebtPay)} (45% ของรายได้)`);
-      }else{
-        adv_dti.push('DTI อยู่ในเกณฑ์ดี (≤ 45%) — รักษาวินัยชำระตรงเวลา');
-      }
-    }
-
-    const adv_sv=[];
-    if(isFinite(m.savingRate)){
-      const targetSave=0.10*(m.inc||0);
-      if(m.savingRate<0.10){
-        const more=Math.max(0,targetSave-(m.save||0));
-        adv_sv.push(`ออมต่ำกว่า 10% — เพิ่มออมอีกประมาณ ${fmtBaht(more)}/เดือน เพื่อถึงขั้นต่ำ 10%`);
-      }else{
-        adv_sv.push(`ออมถึงเกณฑ์แล้ว — ลองตั้งเป้า 15% ≈ ${fmtBaht(0.15*(m.inc||0))}/เดือน`);
-      }
-    }
-
-    const adv_em=[];
-    if(isFinite(m.emeMonths)){
-      const targetAmt=3*(m.living||0);
-      if(m.emeMonths<3){
-        const shortfall=Math.max(0,targetAmt-(state.numeric.eme||0));
-        if((m.save||0)>0){
-          const months=ceil(shortfall/Math.max(1,m.save));
-          adv_em.push(`เงินฉุกเฉินยังไม่ครบ 3 เดือน — ขาดประมาณ ${fmtBaht(shortfall)} (ออมเท่าเดิมจะใช้เวลาราว ${months} เดือน)`);
-        }else{
-          adv_em.push(`เริ่มสะสมเงินฉุกเฉินให้ถึงอย่างน้อย 3 เดือน ≈ ${fmtBaht(targetAmt)}`);
+    // กำหนดไปหน้าถัดไป
+    function nextFrom(opt, q){
+      // ถ้าถึงจำนวนด่านแล้ว → ตรวจมิติขาด
+      if(state.step >= MAX_STEPS){
+        const missing = missingDimensions();
+        if(missing.length){
+          // ดึงคำถามบังคับมิติที่ยังไม่ถาม (อย่างน้อย 1 ด่านต่อมิติ)
+          const forceQ = mandatoryQuestionFor(missing[0]);
+          // รีดักซ์ step ไม่ให้เกิน 12: แทนที่จะ +step เราจะเรนเดอร์ทับ step เดิม
+          state.step = MAX_STEPS - 1; // เพื่อให้ renderQuestion เพิ่มเป็น 12 พอดี
+          return renderQuestion(forceQ);
         }
+        return renderSummary();
+      }
+
+      // เลือก node ถัดไปแบบแตกกิ่ง
+      if(typeof opt.next === 'function'){
+        const node = opt.next(state);
+        return renderQuestion(node);
+      }else if(opt.next){
+        return renderQuestion(opt.next);
       }else{
-        adv_em.push('ถึงเกณฑ์ ≥ 3 เดือนแล้ว — แยกบัญชีฉุกเฉินต่างหากและอย่าหยิบใช้');
+        // ถ้าไม่มี next ให้ไปยังโหนดอัจฉริยะที่ช่วยให้ครบมิติ
+        const auto = smartRoute();
+        return renderQuestion(auto);
       }
     }
 
-    el('#a_cashflow').textContent=adv_cf.join(' ');
-    el('#a_dti').textContent=adv_dti.join(' ');
-    el('#a_saving').textContent=adv_sv.join(' ');
-    el('#a_eme').textContent=adv_em.join(' ');
-  }
+    // ตรวจว่ามิติไหนยังไม่ถูกถาม
+    function missingDimensions(){
+      const miss = [];
+      for(const k of Object.keys(state.visited)){
+        if(!state.visited[k]) miss.push(k);
+      }
+      return miss;
+    }
 
-  function showResult(code){
-    const data=ENDINGS[code];
-    el('#qaCard').classList.add('hidden');
-    el('#resultCard').classList.remove('hidden');
+    // สรุปผลและแผน 90 วัน
+    function renderSummary(){
+      // วิเคราะห์อย่างย่อจาก facts
+      const f = state.facts;
 
-    const endingWrap=el('#endingBadge');
-    endingWrap.innerHTML=`
-      <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50">
-        <div class="font-semibold">${data.title}</div>
-        <div class="text-sm text-slate-600 mt-1">${data.desc}</div>
-      </div>`;
+      // คะแนนเชิงเงื่อนไขง่าย ๆ
+      let score = 0;
+      // สภาพคล่อง
+      if(f.monthEndLeft==='steady') score+=3; else if(f.monthEndLeft==='some') score+=1;
+      // ออมฉุกเฉิน
+      if(f.emergencyMonths==='>3') score+=3; else if(f.emergencyMonths==='1-3') score+=2; else if(f.emergencyMonths==='<1') score+=0; else score+=0;
+      // DTI
+      if(f.dtiBand==='ok') score+=3; else if(f.dtiBand==='mid') score+=1; else score+=0;
+      // ลงทุน
+      if(f.investLevel==='serious') score+=3; else if(f.investLevel==='some') score+=2;
+      // อัตราออม
+      if(f.saveRate==='>20') score+=3; else if(f.saveRate==='10-20') score+=2;
 
-    if(state.metrics) attachResultMetrics(state.metrics);
+      let ending = 'Balancer ⚖️';
+      if(score>=10) ending = 'Accelerator 🚀';
+      else if(score<=4) ending = 'Rescue Needed 🆘';
+      else if(score<=7) ending = 'Survivor 💪';
 
-    function fillList(id,items){ const ul=el(id); ul.innerHTML=''; items.forEach(t=>{const li=document.createElement('li'); li.textContent=t; ul.appendChild(li);}); }
-    const m=state.metrics||{}, extra=[];
-    if(isFinite(m.cashflow)&&m.cashflow<0) extra.push('สภาพคล่องติดลบ: ลดรายจ่ายผูกมัด/เพิ่มรายได้');
-    if(isFinite(m.dti)&&m.dti>0.45) extra.push('DTI > 45%: เจรจาปรับโครงสร้าง/รวมหนี้ดอกต่ำ');
-    if(isFinite(m.savingRate)&&m.savingRate<0.10) extra.push('ออม < 10%: ตั้งตัดออมอัตโนมัติ ≥ 10%');
-    if(isFinite(m.emeMonths)&&m.emeMonths<3) extra.push('เงินฉุกเฉิน < 3 เดือน: เร่งสะสมก่อนลงทุนเสี่ยง');
+      // แผน 90 วันแบบส่วนบุคคล (ยึด facts)
+      const plan = [];
+      // รายจ่าย
+      if(state.visited.expense){
+        plan.push({
+          title:"ลดรายจ่ายในชีวิตประจำวัน (สัปดาห์ 1–4)",
+          items:[
+            "ตั้งงบรายสัปดาห์ (อาหาร/ช้อป/เดินทาง) และบันทึกทุกครั้งที่จ่าย",
+            "ตัดรายการฟุ่มเฟือย 2 อย่างที่หนักสุด 30 วัน",
+            "ต่อรอง/ปรับแพ็กเกจค่าใช้จ่ายคงที่ (เน็ต/มือถือ/สตรีมมิ่ง)"
+          ],
+          tag:"expense"
+        });
+      }
+      // หนี้ / DTI
+      if(state.visited.debt){
+        if(f.dtiBand==='high'){
+          plan.push({
+            title:"ภารกิจด่วน: ลด DTI ให้ต่ำกว่า 50% (สัปดาห์ 1–6)",
+            items:[
+              "เพิ่มค่างวดไปที่หนี้ดอกเบี้ยสูงสุดก่อน (Snowball/ Avalanche)",
+              "คุยเจ้าหนี้เพื่อยืดเวลาผ่อน/รวมยอดดอกต่ำ",
+              "ระงับรายจ่ายอยากได้ 45–60 วัน เพื่อสร้างส่วนเกินไปจ่ายหนี้"
+            ],
+            tag:"debt"
+          });
+        }else{
+          plan.push({
+            title:"ทำให้หนี้เบาลงอย่างต่อเนื่อง (สัปดาห์ 1–8)",
+            items:[
+              "กันเงินจ่ายหนี้วันที่เงินเดือนออกทันที (Auto)",
+              "รีไฟแนนซ์/ปรับโครงสร้างหนี้ถ้าดอกสูงผิดปกติ",
+              "ห้ามจ่ายขั้นต่ำยาว ๆ ถ้าไม่จำเป็น"
+            ],
+            tag:"debt"
+          });
+        }
+      }
+      // ออมฉุกเฉิน
+      if(state.visited.saving){
+        if(f.emergencyMonths==='0' || f.emergencyMonths==='<1'){
+          plan.push({
+            title:"ปั้นเงินออมเผื่อฉุกเฉิน 1–3 เดือน (สัปดาห์ 1–12)",
+            items:[
+              "แยกบัญชีเงินกันฉุกเฉินต่างหาก",
+              "ตั้งหักออมอัตโนมัติวันเงินเดือนออก (เริ่ม 10%)",
+              "เพิ่มรายได้ชั่วคราว/ลดรายจ่าย เพื่อเติมกันชนให้ครบ"
+            ],
+            tag:"saving"
+          });
+        }else{
+          plan.push({
+            title:"เสริมกันชนให้ถึง 3–6 เดือน (สัปดาห์ 1–12)",
+            items:[
+              "เพิ่มอัตราออมอีก +5% ของรายได้",
+              "โบนัส/รายได้พิเศษ ให้ลงที่กันชน 50% ก่อน",
+              "เมื่อถึงเป้า ค่อยขยับไปแผนลงทุน"
+            ],
+            tag:"saving"
+          });
+        }
+      }
+      // รายได้
+      if(state.visited.income){
+        plan.push({
+          title:"เพิ่มรายได้ให้สมดุล (สัปดาห์ 2–10)",
+          items:[
+            "ทบทวนทักษะที่ขายได้ เลือก 1 งานเสริมทำได้จริง",
+            "ตั้งเป้ารายได้เสริม/เดือน และวัดผลทุกสัปดาห์",
+            "ถ้าว่างานหลัก: ขอขยายบทบาท/คอมมิชชั่น/ปรับผลตอบแทน"
+          ],
+          tag:"income"
+        });
+      }
+      // ลงทุน
+      if(state.visited.invest){
+        if(f.investLevel==='none'){
+          plan.push({
+            title:"เริ่มลงทุนอย่างปลอดภัย (สัปดาห์ 4–12)",
+            items:[
+              "เริ่ม DCA รายเดือนกับสินทรัพย์เสี่ยงต่ำ–กลาง",
+              "คงวินัยลงทุนแม้ตลาดผันผวน",
+              "เมื่อกันชนครบและหนี้นิ่ง ค่อยเพิ่มสัดส่วนเสี่ยง"
+            ],
+            tag:"invest"
+          });
+        }else{
+          plan.push({
+            title:"จัดพอร์ตให้เหมาะกับความเสี่ยง (สัปดาห์ 4–12)",
+            items:[
+              "กระจายพอร์ต: เสี่ยงต่ำ/กลาง/สูง ให้สอดคล้องเป้าหมาย",
+              "ลงทุนแบบสม่ำเสมอ (DCA) และทบทวนทุกไตรมาส",
+              "อย่าทุ่มพอร์ตในสินทรัพย์เดียว"
+            ],
+            tag:"invest"
+          });
+        }
+      }
 
-    const e=ENDINGS[code];
-    fillList('#plan30',[...e.plan30,...extra]);
-    fillList('#roadmap12',e.roadmap12);
-    fillList('#checklist',e.checklist);
+      // เรนเดอร์
+      const chips = [];
+      if(state.visited.expense) chips.push(`<span class="pill">รายจ่าย</span>`);
+      if(state.visited.income) chips.push(`<span class="pill">รายได้</span>`);
+      if(state.visited.debt) chips.push(`<span class="pill">หนี้ & DTI</span>`);
+      if(state.visited.saving) chips.push(`<span class="pill">เงินออมเผื่อฉุกเฉิน</span>`);
+      if(state.visited.invest) chips.push(`<span class="pill">การลงทุน</span>`);
 
-    window.scrollTo({top:0,behavior:'smooth'});
-  }
+      stage.innerHTML = `
+        <div class="mb-2 flex items-center justify-between">
+          <div class="text-xs text-slate-500">สรุปผลเฉพาะคุณ</div>
+          <div class="flex flex-wrap gap-2">${chips.join('')}</div>
+        </div>
+        <h2 class="text-2xl font-bold mb-2">ภาพรวมของคุณ: <span class="text-indigo-600">${ending}</span></h2>
+        <p class="text-slate-600 mb-4">
+          นี่คือสรุปจากคำตอบทั้งหมด 12 ด่าน โดยคำนึงถึง
+          รายจ่ายในชีวิตประจำวัน, รายจ่ายหนี้ (DTI), เงินออมเผื่อฉุกเฉิน, รายได้ และการลงทุน
+        </p>
+        <div class="grid gap-3">
+          ${plan.map(p => `
+            <div class="card p-4">
+              <div class="text-sm text-slate-500 mb-1">${tagLabel(p.tag)}</div>
+              <div class="font-semibold mb-2">${p.title}</div>
+              <ul class="list-disc pl-5 text-slate-700 space-y-1">
+                ${p.items.map(i=>`<li>${i}</li>`).join('')}
+              </ul>
+            </div>
+          `).join('')}
+        </div>
 
-  // ===== Init =====
-  function init(){
-    state.step=1; state.path=[]; state.answers={};
-    state.tags={ cashflowNegative:null, cause:null, canReduce:null, canIncome:null, debtTrend:null, debtType:null, creditBad:null, dtiHigh:null, creditRisk:null };
-    state.numeric={ inc:0, living:0, debtpay:0, savingMonthly:0, eme:0 };
-    state.metrics=null; state.currentQ='q1';
+        <div class="mt-6 flex flex-wrap gap-2">
+          <button class="btn" id="btnRestart">เล่นอีกครั้ง</button>
+          <button class="btn btn-ghost" id="btnExport">บันทึกสรุปเป็นข้อความ</button>
+        </div>
+      `;
 
-    el('#resultCard').classList.add('hidden');
-    el('#qaCard').classList.remove('hidden');
-    el('#pathBadge').textContent='เริ่มต้น';
-    el('#progressBar').style.width=(100/TOTAL_STEPS)+'%';
-    el('#totalSteps').textContent=TOTAL_STEPS;
-    el('#totalStepsText').textContent=`${TOTAL_STEPS} ขั้น`;
-    renderQuestion('q1');
-  }
+      $("#btnRestart")?.addEventListener('click', resetGame);
+      $("#btnExport")?.addEventListener('click', () => {
+        const txt = exportSummaryText(ending, plan);
+        downloadText(`summary-fin-game.txt`, txt);
+      });
 
-  function copySummary(){ try{ navigator.clipboard.writeText(document.body.innerText||''); alert('คัดลอกสรุปเรียบร้อย'); }catch{} }
+      // อัปเดตแถบ
+      state.step = MAX_STEPS;
+      updateProgress();
+      btnBack.disabled = false;
+    }
 
-  document.addEventListener('DOMContentLoaded',()=>{
-    el('#btnBack').addEventListener('click',goBack);
-    el('#btnReset').addEventListener('click',init);
-    el('#btnStartOver')?.addEventListener('click',init);
-    el('#btnCopy')?.addEventListener('click',copySummary);
-    el('#btnPrint').addEventListener('click',()=>window.print());
-    init();
-  });
+    function tagLabel(t){
+      switch(t){
+        case 'expense': return 'รายจ่ายในชีวิตประจำวัน';
+        case 'debt': return 'รายจ่ายหนี้ / DTI';
+        case 'saving': return 'เงินออมเผื่อฉุกเฉิน';
+        case 'income': return 'รายได้';
+        case 'invest': return 'การลงทุน';
+        default: return '';
+      }
+    }
+
+    function exportSummaryText(ending, plan){
+      let s = `สรุปผลเกมตะลุยด่านการเงิน (12 ด่าน)\n`;
+      s += `ภาพรวม: ${ending}\n\n`;
+      plan.forEach((p,i)=>{
+        s += `${i+1}. [${tagLabel(p.tag)}] ${p.title}\n`;
+        p.items.forEach(it=> s += `   - ${it}\n`);
+        s += `\n`;
+      });
+      return s;
+    }
+
+    function downloadText(filename, content){
+      const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function updateProgress(){
+      const pct = Math.max(0, Math.min(100, Math.round((state.step / MAX_STEPS)*100)));
+      bar.style.width = pct + '%';
+      stepLabel.textContent = state.step === 0 ? 'พร้อมเริ่ม' : `กำลังทำข้อคำถาม · ด่าน ${state.step}/${MAX_STEPS}`;
+    }
+
+    // เลือกเส้นทางอัตโนมัติให้ครบมิติ
+    function smartRoute(){
+      // ลองส่งไปคำถามมิติที่ยังไม่เคยถาม
+      const miss = missingDimensions();
+      if(miss.length){
+        return mandatoryQuestionFor(miss[0]);
+      }
+      // สำรอง: ถ้าไม่มีอะไรขาด ให้ถามเรื่องเป้าหมาย/ความเร็ว แล้วปิดเกม
+      return Q.goalSpeed;
+    }
+
+    // สร้างคำถามบังคับตามมิติ
+    function mandatoryQuestionFor(dim){
+      switch(dim){
+        case 'income': return Q.incomeHow;
+        case 'expense': return Q.expenseCategory;
+        case 'debt': return Q.debtDTI;
+        case 'saving': return Q.emergencyFund;
+        case 'invest': return Q.investLevel;
+        default: return Q.goalSpeed;
+      }
+    }
+
+    /**********************
+     * คลังคำถาม (Nodes)
+     **********************/
+    const Q = {
+      // หน้าเริ่ม
+      welcome: {
+        id:'welcome',
+        tag:'เริ่มเกม',
+        text:'พร้อมดูมั้ยว่า วันนี้เงินของคุณแข็งแรงแค่ไหน?',
+        sub:'ใช้เวลา 3–5 นาที ไม่มีถูกหรือผิด · จะมีสรุปเฉพาะคุณหลังจบเกม',
+        options:[
+          { key:'go', label:'เริ่มเลย', icon:'▶️', next: ()=> Q.feel1 }
+        ],
+        affect: null
+      },
+
+      // ด่าน 1: ความรู้สึกต่อเงิน
+      feel1:{
+        id:'feel1',
+        tag:'ภาพรวม',
+        text:'ตอนนี้คุณรู้สึกยังไงกับเรื่องเงินในชีวิตจริง?',
+        options:[
+          { key:'tight', label:'เงินตึง เครียดบ่อย', icon:'😣',
+            affect:(k,s)=>{ s.facts.feeling='tight'; },
+            next: ()=> Q.tightCause // เส้น A
+          },
+          { key:'ok', label:'พออยู่ได้ แต่ยังไม่มีเหลือชัด', icon:'🙂',
+            affect:(k,s)=>{ s.facts.feeling='ok'; },
+            next: ()=> Q.midWhy    // เส้น B
+          },
+          { key:'surplus', label:'เหลือเงินทุกเดือน', icon:'😎',
+            affect:(k,s)=>{ s.facts.feeling='surplus'; s.facts.monthEndLeft='steady'; },
+            next: ()=> Q.leftoverUse // เส้น C
+          }
+        ]
+      },
+
+      /************ เส้น A: เงินตึง ************/
+      tightCause:{
+        id:'tightCause',
+        tag:'วิเคราะห์สาเหตุ',
+        text:'อะไรทำให้เงินตึงบ่อยที่สุด?',
+        options:[
+          { key:'expense', label:'รายจ่ายในชีวิตประจำวันเยอะ', icon:'🛒',
+            affect:(k,s)=>{ s.facts.causeTight='expense'; s.visited.expense=true; },
+            next: ()=> Q.expenseCategoryA
+          },
+          { key:'debt', label:'รายจ่ายหนี้เยอะ', icon:'💳',
+            affect:(k,s)=>{ s.facts.causeTight='debt'; s.visited.debt=true; },
+            next: ()=> Q.debtStatus
+          },
+          { key:'income', label:'รายได้ยังไม่พอ', icon:'💼',
+            affect:(k,s)=>{ s.facts.causeTight='income'; s.visited.income=true; },
+            next: ()=> Q.incomeHow
+          }
+        ]
+      },
+
+      expenseCategoryA:{
+        id:'expenseCategoryA',
+        tag:'รายจ่ายประจำวัน',
+        text:'ส่วนใหญ่ใช้เงินไปกับเรื่องไหน?',
+        options:[
+          { key:'food', label:'อาหาร / เดลิเวอรี', icon:'🍔',
+            affect:(k,s)=>{ s.facts.expenseFocus='food'; s.visited.expense=true; },
+            next: ()=> Q.monthEnd
+          },
+          { key:'shopping', label:'ของใช้ / ของอยากได้', icon:'🛍️',
+            affect:(k,s)=>{ s.facts.expenseFocus='shopping'; s.visited.expense=true; },
+            next: ()=> Q.monthEnd
+          },
+          { key:'bills', label:'ค่าเดินทาง / ค่าสาธารณูปโภค', icon:'🚝',
+            affect:(k,s)=>{ s.facts.expenseFocus='bills'; s.visited.expense=true; },
+            next: ()=> Q.monthEnd
+          }
+        ]
+      },
+
+      debtStatus:{
+        id:'debtStatus',
+        tag:'รายจ่ายหนี้',
+        text:'รายจ่ายหนี้ตอนนี้เป็นแบบไหนมากที่สุด?',
+        options:[
+          { key:'minpay', label:'จ่ายขั้นต่ำบ่อย ๆ', icon:'🧾',
+            affect:(k,s)=>{ s.facts.debtStatus='minpay'; s.visited.debt=true; },
+            next: ()=> Q.debtDTI
+          },
+          { key:'multi', label:'ผ่อนหลายก้อนพร้อมกัน', icon:'🧩',
+            affect:(k,s)=>{ s.facts.debtStatus='multi'; s.visited.debt=true; },
+            next: ()=> Q.debtDTI
+          },
+          { key:'highrate', label:'ดอกเบี้ยสูงผิดปกติ', icon:'📈',
+            affect:(k,s)=>{ s.facts.debtStatus='highrate'; s.visited.debt=true; },
+            next: ()=> Q.debtDTI
+          }
+        ]
+      },
+
+      incomeHow:{
+        id:'incomeHow',
+        tag:'รายได้',
+        text:'ตอนนี้รายได้ของคุณเป็นแบบไหน?',
+        options:[
+          { key:'low', label:'รายได้จากงานหลักยังไม่พอ', icon:'💼',
+            affect:(k,s)=>{ s.visited.income=true; },
+            next: ()=> Q.addIncome
+          },
+          { key:'noSide', label:'ยังไม่มีรายได้เสริม', icon:'🧰',
+            affect:(k,s)=>{ s.visited.income=true; },
+            next: ()=> Q.addIncome
+          },
+          { key:'unstable', label:'รายได้ไม่สม่ำเสมอ', icon:'🌊',
+            affect:(k,s)=>{ s.visited.income=true; },
+            next: ()=> Q.addIncome
+          }
+        ]
+      },
+
+      addIncome:{
+        id:'addIncome',
+        tag:'เพิ่มรายได้',
+        text:'วิธีเพิ่มรายได้ที่เหมาะกับคุณที่สุดตอนนี้?',
+        options:[
+          { key:'side', label:'รับงานเสริมง่าย ๆ ก่อน', icon:'🛠️',
+            affect:(k,s)=>{ s.visited.income=true; },
+            next: ()=> Q.monthEnd
+          },
+          { key:'sell', label:'ขายของ/ทักษะที่มี', icon:'🏷️',
+            affect:(k,s)=>{ s.visited.income=true; },
+            next: ()=> Q.monthEnd
+          },
+          { key:'scale', label:'ขยายบทบาทงานหลัก', icon:'📈',
+            affect:(k,s)=>{ s.visited.income=true; },
+            next: ()=> Q.monthEnd
+          }
+        ]
+      },
+
+      /************ เส้น B: พออยู่ได้แต่ยังไม่นิ่ง ************/
+      midWhy:{
+        id:'midWhy',
+        tag:'ความนิ่งของเงิน',
+        text:'ปลายเดือนส่วนใหญ่เป็นยังไง?',
+        options:[
+          { key:'little', label:'เหลือนิดเดียว', icon:'🟡',
+            affect:(k,s)=>{ s.facts.monthEndLeft='some'; },
+            next: ()=> Q.midBranch
+          },
+          { key:'someMonthShort', label:'บางเดือนไม่พอ', icon:'🟥',
+            affect:(k,s)=>{ s.facts.monthEndLeft='none'; },
+            next: ()=> Q.tightCause // พาไปเช็คเหมือนเส้น A
+          }
+        ]
+      },
+
+      midBranch:{
+        id:'midBranch',
+        tag:'เหตุผล',
+        text:'เดือนที่เหลือเงิน มักเพราะอะไร?',
+        options:[
+          { key:'bonus', label:'ได้เงินพิเศษ/โบนัส', icon:'🎁',
+            affect:(k,s)=>{},
+            next: ()=> Q.allocateBonus
+          },
+          { key:'spendLess', label:'ใช้จ่ายน้อยลง', icon:'🧮',
+            affect:(k,s)=>{ s.visited.expense=true; },
+            next: ()=> Q.expenseCategory
+          },
+          { key:'unknown', label:'ไม่แน่ใจ เหมือนเงินหายเอง', icon:'🕵️',
+            affect:(k,s)=>{ s.visited.expense=true; },
+            next: ()=> Q.expenseCategory
+          }
+        ]
+      },
+
+      allocateBonus:{
+        id:'allocateBonus',
+        tag:'จัดสรรเงินพิเศษ',
+        text:'ถ้าได้โบนัส เงินพิเศษอยากทำอะไรก่อน?',
+        options:[
+          { key:'emg', label:'เติมเงินออมเผื่อฉุกเฉิน', icon:'🛟',
+            affect:(k,s)=>{ s.visited.saving=true; },
+            next: ()=> Q.emergencyFund
+          },
+        { key:'debt', label:'โปะหนี้ให้เบาลง', icon:'🔻',
+            affect:(k,s)=>{ s.visited.debt=true; },
+            next: ()=> Q.debtDTI
+          },
+          { key:'grow', label:'ให้เงินงอกเงย', icon:'🌱',
+            affect:(k,s)=>{ s.visited.invest=true; },
+            next: ()=> Q.investLevel
+          }
+        ]
+      },
+
+      /************ เส้น C: เหลือเงินพร้อมโต ************/
+      leftoverUse:{
+        id:'leftoverUse',
+        tag:'ใช้เงินที่เหลือ',
+        text:'เงินที่เหลือเอาไปทำอะไรบ้าง?',
+        options:[
+          { key:'saveOnly', label:'เก็บเงินไว้เฉย ๆ', icon:'💾',
+            affect:(k,s)=>{ s.facts.investLevel='none'; s.visited.saving=true; },
+            next: ()=> Q.emergencyFund
+          },
+          { key:'saveInvest', label:'ออม + ลงทุนบ้าง', icon:'📦',
+            affect:(k,s)=>{ s.facts.investLevel='some'; s.visited.invest=true; },
+            next: ()=> Q.investLevel
+          },
+          { key:'seriousInvest', label:'ลงทุนจริงจังแล้ว', icon:'🚀',
+            affect:(k,s)=>{ s.facts.investLevel='serious'; s.visited.invest=true; },
+            next: ()=> Q.portGoal
+          }
+        ]
+      },
+
+      /************ คำถามร่วม (ใช้ได้ทุกเส้น) ************/
+      monthEnd:{
+        id:'monthEnd',
+        tag:'สภาพคล่อง',
+        text:'ปลายเดือนโดยรวมแล้ว เหลือเงินไหม?',
+        options:[
+          { key:'none', label:'ไม่เหลือเลย', icon:'🔴',
+            affect:(k,s)=>{ s.facts.monthEndLeft='none'; },
+            next: ()=> Q.debtOrSaveRoute
+          },
+          { key:'some', label:'เหลือนิดหน่อย', icon:'🟡',
+            affect:(k,s)=>{ s.facts.monthEndLeft='some'; },
+            next: ()=> Q.emergencyFund
+          },
+          { key:'steady', label:'เหลือสม่ำเสมอ', icon:'🟢',
+            affect:(k,s)=>{ s.facts.monthEndLeft='steady'; },
+            next: ()=> Q.investLevel
+          }
+        ]
+      },
+
+      expenseCategory:{
+        id:'expenseCategory',
+        tag:'รายจ่ายประจำวัน',
+        text:'ค่าใช้จ่ายของคุณส่วนใหญ่หมดกับอะไร?',
+        options:[
+          { key:'food', label:'อาหาร / เดลิเวอรี', icon:'🍔',
+            affect:(k,s)=>{ s.visited.expense=true; },
+            next: ()=> Q.monthEnd
+          },
+          { key:'shopping', label:'ของใช้ / ของอยากได้', icon:'🛍️',
+            affect:(k,s)=>{ s.visited.expense=true; },
+            next: ()=> Q.monthEnd
+          },
+          { key:'bills', label:'ค่าเดินทาง / ค่าสาธารณูปโภค', icon:'🚝',
+            affect:(k,s)=>{ s.visited.expense=true; },
+            next: ()=> Q.monthEnd
+          }
+        ]
+      },
+
+      emergencyFund:{
+        id:'emergencyFund',
+        tag:'เงินออมเผื่อฉุกเฉิน',
+        text:'ตอนนี้มี “เงินออมเผื่อฉุกเฉิน” ประมาณกี่เดือนของค่าใช้จ่ายจำเป็น?',
+        sub:'เช่น ค่ารักษา/ตกงาน/ซ่อมบ้าน',
+        options:[
+          { key:'0', label:'ยังไม่มีเลย', icon:'0️⃣',
+            affect:(k,s)=>{ s.facts.emergencyMonths='0'; s.visited.saving=true; },
+            next: ()=> Q.debtOrInvestRoute
+          },
+          { key:'lt1', label:'น้อยกว่า 1 เดือน', icon:'🌱',
+            affect:(k,s)=>{ s.facts.emergencyMonths='<1'; s.visited.saving=true; },
+            next: ()=> Q.debtOrInvestRoute
+          },
+          { key:'1-3', label:'1–3 เดือน', icon:'🧰',
+            affect:(k,s)=>{ s.facts.emergencyMonths='1-3'; s.visited.saving=true; },
+            next: ()=> Q.debtOrInvestRoute
+          },
+          { key:'gt3', label:'มากกว่า 3 เดือน', icon:'🛡️',
+            affect:(k,s)=>{ s.facts.emergencyMonths='>3'; s.visited.saving=true; },
+            next: ()=> Q.investLevel
+          }
+        ]
+      },
+
+      debtOrSaveRoute:{
+        id:'debtOrSaveRoute',
+        tag:'ทางเลือกถัดไป',
+        text:'ถ้าเงินไม่เหลือเลย อยากเริ่มจากอะไร?',
+        options:[
+          { key:'reduceExpense', label:'ลดรายจ่ายก่อน', icon:'✂️',
+            affect:(k,s)=>{ s.visited.expense=true; },
+            next: ()=> Q.expenseCategory
+          },
+          { key:'fixDebt', label:'จัดการหนี้ก่อน', icon:'🧯',
+            affect:(k,s)=>{ s.visited.debt=true; },
+            next: ()=> Q.debtDTI
+          },
+          { key:'addIncome', label:'เพิ่มรายได้', icon:'➕',
+            affect:(k,s)=>{ s.visited.income=true; },
+            next: ()=> Q.incomeHow
+          }
+        ]
+      },
+
+      debtDTI:{
+        id:'debtDTI',
+        tag:'DTI (รายจ่ายหนี้/รายได้)',
+        text:'สัดส่วนภาระหนี้ต่อรายได้ (DTI) ของคุณประมาณเท่าไหร่?',
+        sub:'คำนวณง่าย ๆ: รายจ่ายหนี้ต่อเดือน ÷ รายได้ต่อเดือน × 100',
+        options:[
+          { key:'high', label:'มากกว่า 50% (หนัก)', icon:'📛',
+            affect:(k,s)=>{ s.facts.dtiBand='high'; s.visited.debt=true; },
+            next: ()=> Q.goalFocus
+          },
+          { key:'mid', label:'36–50% (ต้องรีบปรับ)', icon:'⚠️',
+            affect:(k,s)=>{ s.facts.dtiBand='mid'; s.visited.debt=true; },
+            next: ()=> Q.goalFocus
+          },
+          { key:'ok', label:'ต่ำกว่า 36% (พอไหว)', icon:'✅',
+            affect:(k,s)=>{ s.facts.dtiBand='ok'; s.visited.debt=true; },
+            next: ()=> Q.goalFocus
+          }
+        ]
+      },
+
+      investLevel:{
+        id:'investLevel',
+        tag:'การลงทุน',
+        text:'ตอนนี้คุณลงทุนระดับไหน?',
+        options:[
+          { key:'none', label:'ยังไม่เคยเริ่ม', icon:'👐',
+            affect:(k,s)=>{ s.facts.investLevel='none'; s.visited.invest=true; },
+            next: ()=> Q.saveRate
+          },
+          { key:'some', label:'ลงทุนบ้างแต่ยังไม่สม่ำเสมอ', icon:'🔁',
+            affect:(k,s)=>{ s.facts.investLevel='some'; s.visited.invest=true; },
+            next: ()=> Q.saveRate
+          },
+          { key:'serious', label:'ลงทุนสม่ำเสมอตามแผน', icon:'📊',
+            affect:(k,s)=>{ s.facts.investLevel='serious'; s.visited.invest=true; },
+            next: ()=> Q.saveRate
+          }
+        ]
+      },
+
+      saveRate:{
+        id:'saveRate',
+        tag:'อัตราออม',
+        text:'คุณออมเป็นสัดส่วนต่อรายได้เดือนละประมาณเท่าไหร่?',
+        options:[
+          { key:'lt10', label:'น้อยกว่า 10%', icon:'1️⃣',
+            affect:(k,s)=>{ s.facts.saveRate='<10'; s.visited.saving=true; },
+            next: ()=> Q.goalFocus
+          },
+          { key:'10-20', label:'10–20%', icon:'2️⃣',
+            affect:(k,s)=>{ s.facts.saveRate='10-20'; s.visited.saving=true; },
+            next: ()=> Q.goalFocus
+          },
+          { key:'gt20', label:'มากกว่า 20%', icon:'3️⃣',
+            affect:(k,s)=>{ s.facts.saveRate='>20'; s.visited.saving=true; },
+            next: ()=> Q.goalFocus
+          }
+        ]
+      },
+
+      portGoal:{
+        id:'portGoal',
+        tag:'เป้าหมายเงินโต',
+        text:'แผนระยะยาวที่สำคัญที่สุดตอนนี้คืออะไร?',
+        options:[
+          { key:'retire', label:'เตรียมเกษียณ', icon:'🧓',
+            affect:(k,s)=>{ s.facts.growPriority='retire'; },
+            next: ()=> Q.saveRate
+          },
+          { key:'house', label:'ซื้อบ้าน/มีทรัพย์สิน', icon:'🏠',
+            affect:(k,s)=>{ s.facts.growPriority='house'; },
+            next: ()=> Q.saveRate
+          },
+          { key:'family', label:'ดูแลครอบครัว', icon:'👨‍👩‍👧‍👦',
+            affect:(k,s)=>{ s.facts.growPriority='family'; },
+            next: ()=> Q.saveRate
+          },
+          { key:'grow', label:'ให้เงินโตต่อเนื่อง', icon:'🌳',
+            affect:(k,s)=>{ s.facts.growPriority='grow'; },
+            next: ()=> Q.saveRate
+          }
+        ]
+      },
+
+      debtOrInvestRoute:{
+        id:'debtOrInvestRoute',
+        tag:'ทางไปต่อ',
+        text:'ต่อไปอยากโฟกัสอะไร?',
+        options:[
+          { key:'debt', label:'จัดการหนี้', icon:'🧯',
+            affect:(k,s)=>{ s.visited.debt=true; },
+            next: ()=> Q.debtDTI
+          },
+          { key:'invest', label:'เริ่มลงทุนแบบง่าย', icon:'🌱',
+            affect:(k,s)=>{ s.visited.invest=true; },
+            next: ()=> Q.investLevel
+          }
+        ]
+      },
+
+      goalFocus:{
+        id:'goalFocus',
+        tag:'เป้าหมาย 90 วัน',
+        text:'ใน 90 วันแรก อยากเห็นอะไรชัดที่สุด?',
+        options:[
+          { key:'leftover', label:'เหลือเงินจริงทุกเดือน', icon:'💡',
+            affect:(k,s)=>{},
+            next: ()=> Q.goalSpeed
+          },
+          { key:'emg', label:'มีเงินออมเผื่อฉุกเฉินอย่างน้อย 1 เดือน', icon:'🛟',
+            affect:(k,s)=>{ s.visited.saving=true; },
+            next: ()=> Q.goalSpeed
+          },
+          { key:'debt', label:'ภาระหนี้เบาลง (DTI ดีขึ้น)', icon:'🧾',
+            affect:(k,s)=>{ s.visited.debt=true; },
+            next: ()=> Q.goalSpeed
+          },
+          { key:'invest', label:'เริ่มลงทุน/ปรับพอร์ตให้เหมาะ', icon:'📈',
+            affect:(k,s)=>{ s.visited.invest=true; },
+            next: ()=> Q.goalSpeed
+          }
+        ]
+      },
+
+      goalSpeed:{
+        id:'goalSpeed',
+        tag:'ความพร้อม',
+        text:'พร้อมลุยให้เห็นผลเมื่อไหร่?',
+        options:[
+          { key:'now', label:'เดือนนี้เลย', icon:'✅',
+            affect:(k,s)=>{},
+            next: ()=> null
+          },
+          { key:'next', label:'เดือนหน้า', icon:'📅',
+            affect:(k,s)=>{},
+            next: ()=> null
+          },
+          { key:'slow', label:'ค่อยเป็นค่อยไป', icon:'🧭',
+            affect:(k,s)=>{},
+            next: ()=> null
+          }
+        ]
+      }
+    };
+
+    // ตัวช่วยกำหนดทางหลัง emergencyFund
+    Q.debtOrInvestRoute.next = undefined; // handled via engine
+    function afterEmergencyRoute(state){
+      if(state.facts.emergencyMonths==='>3') return Q.investLevel;
+      // ยังไม่มีกันชน ให้เลือกไปต่อที่หนี้หรือลงทุนง่าย
+      return Q.debtOrInvestRoute;
+    }
+    // แทนด้วย reference ใน nodes
+    Q.emergencyFund.options.forEach(o=>{
+      o.next = (s)=> afterEmergencyRoute(s);
+    });
+
+    // ปุ่มย้อนกลับ
+    btnBack.addEventListener('click', ()=>{
+      if(state.path.length===0){ return; }
+      // ลบคำถามล่าสุด
+      const lastId = state.path.pop();
+      delete state.answers[lastId];
+      // ถอย step
+      state.step = Math.max(0, state.step-1);
+      // หาโหนดก่อนหน้า (ถ้ามี)
+      const prevId = state.path[state.path.length-1] || 'welcome';
+      const prevNode = (prevId==='welcome') ? Q.welcome : findNodeById(prevId);
+      // เพื่อให้แสดงโหนดก่อนหน้าใหม่อีกครั้ง (step++ ภายใน renderQuestion)
+      state.step = Math.max(0, state.step-1);
+      renderQuestion(prevNode);
+    });
+
+    btnReset.addEventListener('click', resetGame);
+
+    function findNodeById(id){
+      for(const key in Q){
+        if(Q[key] && Q[key].id === id) return Q[key];
+      }
+      // fallback
+      return Q.welcome;
+    }
+
+    function resetGame(){
+      state.step = 0;
+      state.path = [];
+      state.answers = {};
+      state.visited = { income:false, expense:false, debt:false, saving:false, invest:false };
+      state.facts = { feeling:null, causeTight:null, expenseFocus:null, debtStatus:null, dtiBand:null, monthEndLeft:null, emergencyMonths:null, investLevel:null, saveRate:null, growPriority:null };
+      btnBack.disabled = true;
+      renderQuestion(Q.welcome);
+    }
+
+    // เริ่มเกม
+    resetGame();
   </script>
 </body>
 </html>
