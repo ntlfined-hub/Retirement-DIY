@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>แนวทางแก้หนี้ DIY — เกมเลือกเส้นทาง + AI Advisor</title>
+  <title>แนวทางแก้หนี้ DIY — เกมเลือกเส้นทาง (มินิมอล · พาสเทล)</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -32,7 +32,6 @@
     .input:focus{ border-color:#c7d2fe; box-shadow:0 0 0 6px rgba(165,180,252,.25) }
     .metric-card{ text-align:center; display:flex; flex-direction:column; align-items:center }
     .advice{ font-size:.78rem; color:#475569; margin-top:.4rem }
-    .mono{ font-variant-numeric: tabular-nums; }
     @media print{ .hidden-print{ display:none !important } .card{ box-shadow:none } }
   </style>
 </head>
@@ -51,7 +50,6 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button id="btnAiSettings" class="btn btn-ghost hidden-print" type="button">ตั้งค่า AI</button>
         <button id="btnPrint" class="btn btn-ghost hidden-print" type="button">พิมพ์สรุป</button>
         <button id="btnReset" class="btn btn-primary hidden-print" type="button">เริ่มใหม่</button>
       </div>
@@ -117,52 +115,27 @@
       <div id="metricsAttach" class="grid md:grid-cols-4 gap-3 mb-4 hidden">
         <div class="card p-4 metric-card">
           <div class="text-sm text-slate-500">สภาพคล่อง/เดือน</div>
-          <div id="r_cashflow" class="text-2xl font-bold mt-0.5 mono">-</div>
+          <div id="r_cashflow" class="text-2xl font-bold mt-0.5">-</div>
           <div id="a_cashflow" class="advice"></div>
         </div>
         <div class="card p-4 metric-card">
           <div class="text-sm text-slate-500">DTI</div>
-          <div id="r_dti" class="text-2xl font-bold mt-0.5 mono">-</div>
+          <div id="r_dti" class="text-2xl font-bold mt-0.5">-</div>
           <div id="a_dti" class="advice"></div>
         </div>
         <div class="card p-4 metric-card">
           <div class="text-sm text-slate-500">อัตราออม</div>
-          <div id="r_saving" class="text-2xl font-bold mt-0.5 mono">-</div>
+          <div id="r_saving" class="text-2xl font-bold mt-0.5">-</div>
           <div id="a_saving" class="advice"></div>
         </div>
         <div class="card p-4 metric-card">
           <div class="text-sm text-slate-500">เงินฉุกเฉิน (เดือน)</div>
-          <div id="r_eme" class="text-2xl font-bold mt-0.5 mono">-</div>
+          <div id="r_eme" class="text-2xl font-bold mt-0.5">-</div>
           <div id="a_eme" class="advice"></div>
         </div>
       </div>
 
-      <!-- AI ADVISOR -->
-      <div class="card p-5 mt-4">
-        <div class="flex items-center justify-between gap-2">
-          <div>
-            <h3 class="font-semibold text-lg">ที่ปรึกษาอัจฉริยะ (AI Advisor)</h3>
-            <p class="text-sm text-slate-500">วิเคราะห์ตามตัวเลขของคุณ และให้คำแนะนำเป็นขั้นตอน</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button id="btnRunOffline" class="btn btn-brand" type="button">แนะนำแบบออฟไลน์ทันที</button>
-            <button id="btnRunOnline" class="btn btn-primary" type="button">วิเคราะห์ด้วย AI (ออนไลน์)</button>
-          </div>
-        </div>
-
-        <div class="mt-3">
-          <label class="text-sm text-slate-600">เพิ่มบริบท (ถ้ามี):</label>
-          <textarea id="aiExtra" class="input mt-1" rows="2" placeholder="เช่น มีหนี้นอกระบบ 5,000/เดือน ดอกสูง อยากปิดภายใน 6 เดือน ฯลฯ"></textarea>
-        </div>
-
-        <div id="aiOutput" class="mt-4 space-y-3">
-          <div class="text-sm text-slate-500">ผลลัพธ์ AI จะแสดงที่นี่</div>
-        </div>
-
-        <p class="text-xs text-slate-400 mt-4">* ข้อความนี้เป็นคำแนะนำทั่วไปด้านการเงินส่วนบุคคล ไม่ใช่คำแนะนำการลงทุน โปรดพิจารณาความเหมาะสมตามบริบทของคุณ</p>
-      </div>
-
-      <div class="grid md:grid-cols-2 gap-4 mt-4">
+      <div class="grid md:grid-cols-2 gap-4">
         <div class="card p-4">
           <h3 class="font-semibold text-lg mb-2">Action Plan 30 วันแรก</h3>
           <ul id="plan30" class="list-disc pl-5 space-y-1"></ul>
@@ -186,34 +159,6 @@
 
   </main>
 
-  <!-- AI Settings Modal -->
-  <div id="aiSettings" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 bg-black/30"></div>
-    <div class="relative max-w-lg mx-auto mt-24 card p-5">
-      <h3 class="font-semibold text-lg mb-2">ตั้งค่า AI (ออนไลน์)</h3>
-      <p class="text-sm text-slate-500 mb-3">ใส่ค่าด้านล่างเพื่อให้โค้ดเรียกใช้งานผู้ให้บริการที่เข้ากันได้กับ OpenAI API</p>
-      <div class="space-y-3">
-        <div>
-          <label class="text-sm">API Base URL</label>
-          <input id="aiBase" class="input mt-1" placeholder="เช่น https://api.openai.com/v1">
-        </div>
-        <div>
-          <label class="text-sm">API Key</label>
-          <input id="aiKey" class="input mt-1" placeholder="sk-********" type="password">
-        </div>
-        <div>
-          <label class="text-sm">Model</label>
-          <input id="aiModel" class="input mt-1" value="gpt-4o-mini">
-        </div>
-      </div>
-      <div class="flex justify-end gap-2 mt-4">
-        <button id="btnCloseSettings" class="btn btn-ghost" type="button">ปิด</button>
-        <button id="btnSaveSettings" class="btn btn-primary" type="button">บันทึก</button>
-      </div>
-      <p class="text-xs text-slate-400 mt-3">* คีย์นี้จะถูกเก็บในหน่วยความจำเบราว์เซอร์ (localStorage) ของคุณเท่านั้น</p>
-    </div>
-  </div>
-
   <script>
   // ===== Config & Helpers =====
   const TOTAL_STEPS = 12;
@@ -228,14 +173,13 @@
     metrics:null, currentQ:'q1'
   };
 
-  // ===== ENDINGS (ย่อ) =====
-  const ENDINGS = {};
+  const ENDINGS = {/* (เหมือนเดิม ตัดทอนเพื่อย่อ) */};
   ENDINGS.A={title:'Ending A — Cashflow Fix',desc:'ติดลบเพราะฟุ่มเฟือย แต่ยังแก้ได้ด้วยการจัดงบและตัดรายจ่ายผูกมัด',plan30:['แช่แข็งบัตร','งดผ่อนของ/สมาชิก','ใช้ระบบซอง','ตั้งเพดานรายจ่าย ≤ 70%'],roadmap12:['1–3: ปิดก้อนเล็ก','4–6: ลดวงเงินบัตร','7–12: โปะก้อนใหญ่'],checklist:['หยุดสร้างหนี้ใหม่','บันทึกรายจ่ายทุกวัน','เคลียร์ของผูกมัด']};
   ENDINGS.B={title:'Ending B — Income Booster',desc:'รายได้ไม่พอของจำเป็น เน้นเพิ่มรายได้ + สวัสดิการ/สหกรณ์',plan30:['หาอาชีพเสริม','ขอ OT/คอมมิชชั่น','ใช้สิทธิช่วยลดรายจ่าย','ประเมินสุขภาพ/เวลา'],roadmap12:['1–3: รายได้สุทธิ > 150% ของค่าใช้จ่ายจำเป็น','4–6: โปะดอกสูง','7–12: เงินฉุกเฉิน 1–3 เดือน'],checklist:['รายได้เสริม ≥ 20% ของค่างวด','ปิดบัตรดอกสูงใบแรก','เพิ่มทักษะระยะยาว']};
-  ENDINGS.C={title:'Ending C — Finance Strategy',desc:'ไม่ติดลบแต่จ่ายไม่ถูกจุด ใช้ Avalanche/รีไฟแนนซ์',plan30:['จ่ายมากกว่าขั้นต่ำ 2x','รวม/รีไฟแนนซ์ดอกต่ำ','เรียงโปะตามดอก','พักบัตรหมุนเวียน'],roadmap12:['1–4: บัตรเหลือ < 50% วงเงิน','5–9: โยกไปดอกต่ำ','10–12: ออม 2 เท่าค่างวด'],checklist:['ปิดดอกสูงใน 12 เดือน','ติดตามยอดคงเหลือ','ตั้งออมอัตโนมัติ ≥10%']};
+  ENDINGS.C={title:'Ending C — Finance Strategy',desc:'ไม่ติดลบแต่จ่ายไม่ถูกจุด ใช้ Avalanche/รีไฟแนนซ์',plan30:['จ่ายมากกว่าขั้นต่ำ 2x','รวม/รีไฟแนนซ์ดอกต่ำ','เรียงโปะตามดอก','พักบัตรหมุนเวียนชั่วคราว'],roadmap12:['1–4: บัตรเหลือ < 50% วงเงิน','5–9: โยกไปดอกต่ำ','10–12: ออม 2 เท่าค่างวด'],checklist:['ปิดดอกสูงใน 12 เดือน','ติดตามยอดคงเหลือ','ตั้งออมอัตโนมัติ ≥10%']};
   ENDINGS.D={title:'Ending D — Restructuring Rescue',desc:'ภาระหนัก/เครดิตเสีย เน้นปรับโครงสร้าง + หยุดดอกบาน',plan30:['ติดต่อปรับโครงสร้าง','พักเงินต้นบางส่วน','ลำดับจ่าย ในระบบ→นอกระบบ','งบเข้ม 60–70% จำเป็น'],roadmap12:['1–3: ดอกคงที่ <10%','4–8: วินัย+เพิ่มรายได้','9–12: โปะต่อเนื่อง'],checklist:['หยุดผิดนัด','ปิดนอกระบบก่อน','เงินฉุกเฉิน ≥ 1 เดือน']};
 
-  // ===== Questions (ตามเวอร์ชันก่อน) =====
+  // ===== Questions (ย่อเท่าที่จำเป็น) =====
   const Q = {
     q1:{title:'ปัจจุบันเงินเดือนติดลบหรือไม่?',hint:'ถ้ารายจ่ายต่อเดือนมากกว่ารายรับ ถือว่า "ติดลบ"',choices:[
       {key:'yes',label:'ติดลบ',onSelect:()=>{state.tags.cashflowNegative=true;return 'q2A';}},
@@ -284,7 +228,7 @@
       {key:'no',label:'ไม่พลาด',onSelect:()=>{state.tags.creditBad = state.tags.creditBad ?? false; return 'q8_income';}},
       {key:'yes',label:'มีพลาด/ค้าง',onSelect:()=>{state.tags.creditBad = true; return 'q8_income';}}
     ]},
-    // Numeric
+    // ===== Numeric =====
     q8_income:{title:'รายได้รวมต่อเดือน (บาท)',hint:'รวมเงินเดือนประจำ + รายได้เสริม (ถ้ามี)',input:{type:'number',id:'inp_income',placeholder:'เช่น 30000',min:0},onNext:(v)=>{state.numeric.inc=v;return 'q9_living';}},
     q9_living:{title:'ค่าใช้จ่ายในชีวิตประจำวัน/เดือน (บาท)',hint:'ที่อยู่อาศัย/อาหาร/เดินทาง/สาธารณูปโภค ฯลฯ',input:{type:'number',id:'inp_living',placeholder:'เช่น 18000',min:0},onNext:(v)=>{state.numeric.living=v;return 'q10_debtpay';}},
     q10_debtpay:{title:'จ่ายหนี้ต่อเดือน (บาท)',hint:'รวมค่างวดทุกเจ้าหนี้',input:{type:'number',id:'inp_debtpay',placeholder:'เช่น 6000',min:0},onNext:(v)=>{state.numeric.debtpay=v;return 'q10_5_saving';}},
@@ -292,9 +236,9 @@
     q11_eme:{title:'ปัจจุบันมีเงินออมสะสมทั้งหมด (บาท)',hint:'ใช้ประเมินเงินฉุกเฉิน (เดือน)',input:{type:'number',id:'inp_eme',placeholder:'เช่น 10000',min:0},onNext:(v)=>{state.numeric.eme=v;finishWithNumbers();}}
   };
 
+  // ===== DOM =====
   const el=(s)=>document.querySelector(s);
 
-  // ===== RENDER =====
   function renderQuestion(qid){
     const q=Q[qid]; if(!q) return;
     state.isTransitioning=false;
@@ -303,38 +247,54 @@
     el('#qHint').textContent=q.hint||'';
 
     const wrap=el('#choices'); wrap.innerHTML='';
+
+    // reset nav rows
     el('#navRow').classList.add('hidden');
     el('#backOnlyRow').classList.remove('hidden');
 
     if(q.input && q.input.type==='number'){
+      // input box
       const box=document.createElement('div');
       box.className='col-span-2';
-      box.innerHTML=`<label class='block'><input id='${q.input.id}' type='number' inputmode='decimal' min='${q.input.min??0}' class='input' placeholder='${q.input.placeholder||''}' /></label>`;
+      box.innerHTML=`
+        <label class='block'>
+          <input id='${q.input.id}' type='number' inputmode='decimal' min='${q.input.min??0}' class='input' placeholder='${q.input.placeholder||''}' />
+        </label>`;
       wrap.appendChild(box);
 
+      // inline nav
       el('#navRow').classList.remove('hidden');
       el('#backOnlyRow').classList.add('hidden');
+      const backInline=el('#btnBackInline');
+      const nextInline=el('#btnNextInline');
 
-      el('#btnBackInline').onclick=goBack;
-      const nextBtn=el('#btnNextInline');
+      backInline.onclick=goBack; // same handler
+
       const inputEl=document.getElementById(q.input.id);
-      const prev=state.answers[qid]; if(prev!=null) inputEl.value=prev;
 
       function submitNumber(){
         if(state.isTransitioning) return;
-        const raw=inputEl.value.trim(); const val=parseFloat(raw);
+        const raw=inputEl.value.trim();
+        const val=parseFloat(raw);
         if(raw===''||isNaN(val)||val<(q.input.min??0)){ alert('กรุณากรอกตัวเลขให้ถูกต้อง'); return; }
-        state.isTransitioning=true; nextBtn.disabled=true;
+        state.isTransitioning=true;
+        nextInline.disabled=true; // กันคลิกย้ำ
         const safe=Math.max(q.input.min??0,val);
-        state.path.push(qid); state.answers[qid]=safe;
+        state.path.push(qid);
+        state.answers[qid]=safe;
         const next=q.onNext? q.onNext(safe):null;
-        if(next){ goNext(next); } else { state.isTransitioning=false; nextBtn.disabled=false; }
+        if(next){ goNext(next); } else { state.isTransitioning=false; nextInline.disabled=false; }
       }
 
-      inputEl.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); submitNumber(); }});
-      nextBtn.onclick=submitNumber;
+      // Enter -> next
+      inputEl.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); submitNumber(); }});
+      nextInline.onclick=submitNumber;
+
+      // Prefill (หากย้อนกลับ)
+      const prev=state.answers[qid]; if(prev!=null) inputEl.value=prev;
 
     }else{
+      // choices
       q.choices.forEach((c,idx)=>{
         const btn=document.createElement('button');
         btn.type='button'; btn.className='choice text-left';
@@ -349,13 +309,15 @@
           if(state.isTransitioning) return;
           state.isTransitioning=true;
           const next=c.onSelect();
-          state.path.push(qid); state.answers[qid]=c.key;
+          state.path.push(qid);
+          state.answers[qid]=c.key;
           goNext(next);
         });
         wrap.appendChild(btn);
       });
     }
 
+    // progress + path
     el('#stepLabel').textContent=`คำถามที่ ${state.step}`;
     const pct=Math.max(1,Math.min(TOTAL_STEPS,state.step))/TOTAL_STEPS*100;
     el('#progressBar').style.width=pct+'%';
@@ -382,26 +344,33 @@
       state.isTransitioning=false;
     }
   }
+
   function goBack(){
     if(state.step<=1) return;
     const lastQ=state.path.pop(); if(!lastQ) return;
-    state.step-=1; state.currentQ=lastQ;
-    renderQuestion(lastQ); window.scrollTo({top:0,behavior:'smooth'});
+    state.step-=1;
+    state.currentQ=lastQ;
+    renderQuestion(lastQ);
+    window.scrollTo({top:0,behavior:'smooth'});
   }
 
   function deriveTagsFromMetrics(m){
     state.tags.cashflowNegative=(m.cashflow<0);
-    state.tags.dtiHigh=(m.dti>=0.45);
+    state.tags.dtiHigh=(m.dti>=0.45);      // DTI ไม่ควรเกิน 45%
     state.tags.creditRisk=(m.dti>=0.6);
   }
 
   function finishWithNumbers(){
     const n=state.numeric||{inc:0,living:0,debtpay:0,savingMonthly:0,eme:0};
     const inc=+n.inc||0, living=+n.living||0, debtPay=+n.debtpay||0, save=+n.savingMonthly||0, eme=+n.eme||0;
-    const cashflow = inc - living - debtPay - save;        // ✅ หัก “ออมต่อเดือน”
+
+    // ✅ สูตรใหม่: หักออมต่อเดือนด้วย
+    const cashflow = inc - living - debtPay - save;
+
     const dti = inc>0 ? (debtPay/inc) : NaN;
     const savingRate = inc>0 ? (save/inc) : NaN;
     const emeMonths = living>0 ? (eme/living) : NaN;
+
     state.metrics={inc,living,debtPay,save,cashflow,dti,savingRate,emeMonths};
     deriveTagsFromMetrics(state.metrics);
 
@@ -417,14 +386,15 @@
     showResult(ending);
   }
 
-  // ===== Metrics + advice (พื้นฐาน) =====
   function attachResultMetrics(m){
     const box=el('#metricsAttach'); box.classList.remove('hidden');
+
     el('#r_cashflow').textContent=fmtBaht(m.cashflow);
     el('#r_dti').textContent=fmtPct(m.dti);
     el('#r_saving').textContent=fmtPct(m.savingRate);
     el('#r_eme').textContent=isFinite(m.emeMonths)? m.emeMonths.toFixed(1)+' เดือน':'-';
 
+    // คำแนะนำตามเกณฑ์: DTI ≤45%, ออม ≥10%, EME ≥3 เดือน
     const adv_cf=[];
     if(isFinite(m.cashflow) && m.cashflow<0){ adv_cf.push(`ควรเพิ่มสภาพคล่องอย่างน้อย ${fmtBaht(Math.abs(m.cashflow))}/เดือน (ลดรายจ่าย/เพิ่มรายได้/ชะลอการออมชั่วคราว)`); }
     else adv_cf.push('ดีมาก! สภาพคล่องเป็นบวก — กระจายไปออม/โปะหนี้ดอกสูง');
@@ -434,7 +404,7 @@
       const maxDebtPay=0.45*(m.inc||0);
       if(m.dti>0.45){
         const gap=Math.max(0,m.debtPay-maxDebtPay);
-        adv_dti.push(`DTI เกินเกณฑ์ — ลดค่างวดอย่างน้อย ${fmtBaht(gap)}/เดือน หรือเพิ่มรายได้ให้ค่างวดรวม ≤ ${fmtBaht(maxDebtPay)} (45% ของรายได้)`);
+        adv_dti.push(`DTI เกินเกณฑ์ — ลดค่างวดอย่างน้อย ${fmtBaht(gap)}/เดือน หรือเพิ่มรายได้เพื่อให้ค่างวดรวม ≤ ${fmtBaht(maxDebtPay)} (45% ของรายได้)`);
       }else{
         adv_dti.push('DTI อยู่ในเกณฑ์ดี (≤ 45%) — รักษาวินัยชำระตรงเวลา');
       }
@@ -460,7 +430,7 @@
           const months=ceil(shortfall/Math.max(1,m.save));
           adv_em.push(`เงินฉุกเฉินยังไม่ครบ 3 เดือน — ขาดประมาณ ${fmtBaht(shortfall)} (ออมเท่าเดิมจะใช้เวลาราว ${months} เดือน)`);
         }else{
-          adv_em.push(`เริ่มสะสมเงินฉุกเฉินอย่างน้อย 3 เดือน ≈ ${fmtBaht(targetAmt)}`);
+          adv_em.push(`เริ่มสะสมเงินฉุกเฉินให้ถึงอย่างน้อย 3 เดือน ≈ ${fmtBaht(targetAmt)}`);
         }
       }else{
         adv_em.push('ถึงเกณฑ์ ≥ 3 เดือนแล้ว — แยกบัญชีฉุกเฉินต่างหากและอย่าหยิบใช้');
@@ -502,111 +472,7 @@
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
-  // ===== AI Advisor (ออฟไลน์ + ออนไลน์) =====
-  function buildCaseSummary(){
-    const m=state.metrics||{};
-    const t=state.tags||{};
-    return {
-      numbers:{
-        income:m.inc, living:m.living, debtPay:m.debtPay, savingMonthly:m.save, emergencyFund:state.numeric.eme,
-        cashflow:m.cashflow, dti:m.dti, savingRate:m.savingRate, emeMonths:m.emeMonths
-      },
-      flags:{
-        cashflowNegative:t.cashflowNegative, dtiHigh:t.dtiHigh, creditRisk:t.creditRisk,
-        cause:t.cause, debtTrend:t.debtTrend, debtType:t.debtType, creditBad:t.creditBad
-      }
-    };
-  }
-
-  function offlineAdvice(){
-    const c=buildCaseSummary();
-    const n=c.numbers;
-    const lines=[];
-    lines.push(`ภาพรวม: รายได้ ${fmtBaht(n.income)}, ค่าใช้จ่าย ${fmtBaht(n.living)}, จ่ายหนี้ ${fmtBaht(n.debtPay)}, ออม/เดือน ${fmtBaht(n.savingMonthly)} → สภาพคล่อง ${fmtBaht(n.cashflow)}, DTI ${fmtPct(n.dti)}, ออม ${fmtPct(n.savingRate)}, เงินฉุกเฉิน ${isFinite(n.emeMonths)?n.emeMonths.toFixed(1)+' เดือน':'-'} `);
-
-    const steps=[];
-    if(isFinite(n.cashflow) && n.cashflow<0){
-      steps.push(`พลิกสภาพคล่องอย่างน้อย ${fmtBaht(Math.abs(n.cashflow))}/เดือน (ลดรายจ่ายผูกมัด/เพิ่มรายได้/ชะลอการออมชั่วคราว)`);
-    }
-    if(isFinite(n.dti) && n.dti>0.45){
-      const maxDebtPay=0.45*(n.income||0);
-      const gap=Math.max(0,(n.debtPay||0)-maxDebtPay);
-      steps.push(`ลดค่างวดรวมอย่างน้อย ${fmtBaht(gap)} ให้ DTI ≤ 45% (เป้าหมายค่างวดรวม ≤ ${fmtBaht(maxDebtPay)})`);
-    }
-    if(isFinite(n.savingRate) && n.savingRate<0.10){
-      const need=Math.max(0,0.10*(n.income||0)-(n.savingMonthly||0));
-      steps.push(`เพิ่มออมอีก ${fmtBaht(need)}/เดือน เพื่อแตะ 10% ของรายได้`);
-    }
-    if(isFinite(n.emeMonths) && n.emeMonths<3){
-      const target=3*(n.living||0);
-      const shortfall=Math.max(0,target-(state.numeric.eme||0));
-      if((n.savingMonthly||0)>0){
-        const months=ceil(shortfall/Math.max(1,n.savingMonthly));
-        steps.push(`สะสมเงินฉุกเฉินให้ครบอย่างน้อย 3 เดือน (ขาด ${fmtBaht(shortfall)} ~ ใช้เวลาประมาณ ${months} เดือนที่ระดับออมปัจจุบัน)`);
-      } else {
-        steps.push(`เริ่มออมทันทีอย่างน้อย 10% จนเงินฉุกเฉินครบ ~ ${fmtBaht(target)}`);
-      }
-    }
-
-    // แนวทางเฉพาะตามสาเหตุ
-    if(c.flags.cause==='lux'){ steps.push('ตัดค่าใช้จ่ายฟุ่มเฟือย 2–3 รายการใหญ่ทันที และแช่แข็งบัตรที่ใช้หนัก 1 ใบ'); }
-    if(c.flags.cause==='need'){ steps.push('คงรายจ่ายจำเป็น เน้นเพิ่มรายได้ (โอที/งานเสริม) และใช้สิทธิ/สวัสดิการลดคงที่'); }
-    if(c.flags.debtType==='hi'){ steps.push('ใช้กลยุทธ์ Avalanche: โปะหนี้ดอกสูงที่สุดก่อน พร้อมพิจารณารีไฟแนนซ์/รวมหนี้ดอกต่ำ'); }
-    if(c.flags.creditBad){ steps.push('ติดต่อเจ้าหนี้เพื่อปรับโครงสร้าง/ผ่อนปรน หากมีค้างชำระ/สถานะ NPL'); }
-
-    const html = `
-      <div class="p-4 border border-slate-200 rounded-2xl bg-slate-50">
-        <div class="font-semibold mb-2">สรุปเชิงวิเคราะห์</div>
-        <p class="text-sm text-slate-700">${lines.join(' ')}</p>
-        <div class="font-semibold mt-3 mb-1">สิ่งที่ควรทำถัดไป (เรียงลำดับ)</div>
-        <ol class="list-decimal pl-5 space-y-1 text-sm text-slate-700">
-          ${steps.map(s=>`<li>${s}</li>`).join('')}
-        </ol>
-      </div>`;
-    return html;
-  }
-
-  async function onlineAdvice(){
-    const base = localStorage.getItem('ai_base') || '';
-    const key  = localStorage.getItem('ai_key')  || '';
-    const model= localStorage.getItem('ai_model')|| 'gpt-4o-mini';
-    if(!base || !key){ throw new Error('ยังไม่ได้ตั้งค่า AI (Base URL / API Key)'); }
-
-    const extra = el('#aiExtra').value?.trim() || '';
-    const summary = buildCaseSummary();
-    const prompt = `คุณเป็นที่ปรึกษาการเงินส่วนบุคคลระดับมืออาชีพ (สื่อสารไทย ชัดเจน กระชับ เป็นขั้นตอน)
-ข้อมูลผู้ใช้ (JSON):
-${JSON.stringify(summary, null, 2)}
-บริบทเพิ่มเติม: ${extra || '-'}
-กรุณาสรุป:
-1) ภาพรวมสถานการณ์ (1 ย่อหน้า)
-2) สิ่งที่ต้องทำ 3–7 ข้อ (เรียงลำดับ มีตัวเลขเป้าหมายชัดเจน เช่น DTI ≤45%, ออม ≥10%, เงินฉุกเฉิน ≥3 เดือน)
-3) หมายเหตุความเสี่ยง/ข้อควรระวังสั้น ๆ`;
-
-    // เรียก Chat Completions แบบทั่วไป (OpenAI-compatible)
-    const res = await fetch(`${base.replace(/\/$/,'')}/chat/completions`,{
-      method:'POST',
-      headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${key}` },
-      body: JSON.stringify({
-        model, temperature:0.3,
-        messages:[
-          {role:'system', content:'You are a Thai-speaking certified personal finance advisor (CFP-style), precise and actionable.'},
-          {role:'user', content: prompt}
-        ]
-      })
-    });
-    if(!res.ok){ const t=await res.text(); throw new Error(`API error: ${res.status} ${t}`); }
-    const data = await res.json();
-    const text = data.choices?.[0]?.message?.content || '(ไม่มีข้อความตอบกลับ)';
-    return `<div class="p-4 border border-slate-200 rounded-2xl bg-white whitespace-pre-wrap text-sm text-slate-800">${text}</div>`;
-  }
-
-  function renderAi(html){
-    const out=el('#aiOutput');
-    out.innerHTML = html;
-  }
-
-  // ===== INIT & EVENTS =====
+  // ===== Init =====
   function init(){
     state.step=1; state.path=[]; state.answers={}; state.isTransitioning=false;
     state.tags={ cashflowNegative:null, cause:null, canReduce:null, canIncome:null, debtTrend:null, debtType:null, creditBad:null, dtiHigh:null, creditRisk:null };
@@ -620,50 +486,16 @@ ${JSON.stringify(summary, null, 2)}
     el('#totalSteps').textContent=TOTAL_STEPS;
     el('#totalStepsText').textContent=`${TOTAL_STEPS} ขั้น`;
     renderQuestion('q1');
-    renderAi('<div class="text-sm text-slate-500">ผลลัพธ์ AI จะแสดงที่นี่</div>');
   }
+
+  function copySummary(){ try{ navigator.clipboard.writeText(document.body.innerText||''); alert('คัดลอกสรุปเรียบร้อย'); }catch{} }
 
   document.addEventListener('DOMContentLoaded',()=>{
     el('#btnBack').addEventListener('click',goBack);
     el('#btnReset').addEventListener('click',init);
     el('#btnStartOver')?.addEventListener('click',init);
-    el('#btnCopy')?.addEventListener('click',()=>{ try{ navigator.clipboard.writeText(document.body.innerText||''); alert('คัดลอกสรุปเรียบร้อย'); }catch{} });
+    el('#btnCopy')?.addEventListener('click',copySummary);
     el('#btnPrint').addEventListener('click',()=>window.print());
-
-    // AI buttons
-    el('#btnRunOffline').addEventListener('click',()=>{
-      if(!state.metrics){ alert('กรุณาตอบคำถามจนจบเพื่อให้มีข้อมูลวิเคราะห์'); return; }
-      renderAi('<div class="text-sm text-slate-500">กำลังวิเคราะห์แบบออฟไลน์…</div>');
-      const html = offlineAdvice();
-      renderAi(html);
-    });
-    el('#btnRunOnline').addEventListener('click', async ()=>{
-      if(!state.metrics){ alert('กรุณาตอบคำถามจนจบเพื่อให้มีข้อมูลวิเคราะห์'); return; }
-      renderAi('<div class="text-sm text-slate-500">กำลังเรียกใช้ AI ออนไลน์…</div>');
-      try{
-        const html = await onlineAdvice();
-        renderAi(html);
-      }catch(err){
-        renderAi(`<div class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm">ไม่สามารถเรียกใช้งาน AI ออนไลน์ได้: ${err.message}</div>`);
-      }
-    });
-
-    // AI settings modal
-    el('#btnAiSettings').addEventListener('click',()=>{
-      el('#aiBase').value  = localStorage.getItem('ai_base')  || 'https://api.openai.com/v1';
-      el('#aiKey').value   = localStorage.getItem('ai_key')   || '';
-      el('#aiModel').value = localStorage.getItem('ai_model') || 'gpt-4o-mini';
-      el('#aiSettings').classList.remove('hidden');
-    });
-    el('#btnCloseSettings').addEventListener('click',()=> el('#aiSettings').classList.add('hidden'));
-    el('#btnSaveSettings').addEventListener('click',()=>{
-      localStorage.setItem('ai_base',  el('#aiBase').value.trim());
-      localStorage.setItem('ai_key',   el('#aiKey').value.trim());
-      localStorage.setItem('ai_model', el('#aiModel').value.trim() || 'gpt-4o-mini');
-      el('#aiSettings').classList.add('hidden');
-      alert('บันทึกการตั้งค่า AI แล้ว');
-    });
-
     init();
   });
   </script>
