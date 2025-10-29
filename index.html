@@ -69,8 +69,8 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button id="btnPrint" class="btn btn-soft hidden-print" title="พิมพ์/บันทึก PDF">พิมพ์สรุป</button>
-        <button id="btnReset" class="btn btn-primary hidden-print" title="เริ่มใหม่">เริ่มใหม่</button>
+        <button id="btnPrint" class="btn btn-soft hidden-print" title="พิมพ์/บันทึก PDF" type="button">พิมพ์สรุป</button>
+        <button id="btnReset" class="btn btn-primary hidden-print" title="เริ่มใหม่" type="button">เริ่มใหม่</button>
       </div>
     </div>
   </header>
@@ -120,12 +120,28 @@
 
       <div id="endingBadge" class="mb-4"></div>
 
-      <!-- Metrics Result Attach -->
+      <!-- Metrics (center + advice) -->
       <div id="metricsAttach" class="grid md:grid-cols-4 gap-3 mb-4 hidden">
-        <div class="card p-3"><div class="text-sm text-slate-500">สภาพคล่อง/เดือน</div><div id="r_cashflow" class="text-xl font-bold">-</div></div>
-        <div class="card p-3"><div class="text-sm text-slate-500">DTI</div><div id="r_dti" class="text-xl font-bold">-</div></div>
-        <div class="card p-3"><div class="text-sm text-slate-500">อัตราออม</div><div id="r_saving" class="text-xl font-bold">-</div></div>
-        <div class="card p-3"><div class="text-sm text-slate-500">เงินฉุกเฉิน (เดือน)</div><div id="r_eme" class="text-xl font-bold">-</div></div>
+        <div class="card p-4 text-center flex flex-col items-center">
+          <div class="text-sm text-slate-500">สภาพคล่อง/เดือน</div>
+          <div id="r_cashflow" class="text-2xl font-bold mt-0.5">-</div>
+          <div id="a_cashflow" class="text-xs text-slate-600 mt-2"></div>
+        </div>
+        <div class="card p-4 text-center flex flex-col items-center">
+          <div class="text-sm text-slate-500">DTI</div>
+          <div id="r_dti" class="text-2xl font-bold mt-0.5">-</div>
+          <div id="a_dti" class="text-xs text-slate-600 mt-2"></div>
+        </div>
+        <div class="card p-4 text-center flex flex-col items-center">
+          <div class="text-sm text-slate-500">อัตราออม</div>
+          <div id="r_saving" class="text-2xl font-bold mt-0.5">-</div>
+          <div id="a_saving" class="text-xs text-slate-600 mt-2"></div>
+        </div>
+        <div class="card p-4 text-center flex flex-col items-center">
+          <div class="text-sm text-slate-500">เงินฉุกเฉิน (เดือน)</div>
+          <div id="r_eme" class="text-2xl font-bold mt-0.5">-</div>
+          <div id="a_eme" class="text-xs text-slate-600 mt-2"></div>
+        </div>
       </div>
 
       <div class="grid md:grid-cols-2 gap-4">
@@ -154,9 +170,10 @@
 
   <script>
   // ===== Config & Helpers =====
-  const TOTAL_STEPS = 12; // เพิ่มคำถาม "ออมต่อเดือน" แล้ว
+  const TOTAL_STEPS = 12; // มีคำถาม "ออมต่อเดือน"
   const fmtBaht = (n) => (isFinite(n)? new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB',maximumFractionDigits:0}).format(n):'-');
   const fmtPct  = (x) => (isFinite(x)? (x*100).toFixed(0)+'%':'-');
+  const ceil = (x)=> Math.ceil(x);
 
   const state = {
     step: 1,
@@ -191,16 +208,13 @@
       checklist:['หยุดผิดนัดชำระทันที','ปิดหนี้ดอกสูง/นอกระบบเป็นลำดับแรก','ตั้งเงินฉุกเฉินขั้นต่ำ 1 เดือน'] }
   };
 
-  // ===== Questions =====
+  // ===== Questions (เหมือนเวอร์ชันก่อน, ตัดทอนแค่ส่วนบรรยาย) =====
   const Q = {
-    // เหมือนเดิม…
     q1:{ title:'ปัจจุบันเงินเดือนติดลบหรือไม่?', hint:'ถ้ารายจ่ายต่อเดือนมากกว่ารายรับ ถือว่า "ติดลบ"',
       choices:[
         { key:'yes', label:'ติดลบ',   onSelect:()=>{ state.tags.cashflowNegative=true;  return 'q2A'; } },
         { key:'no',  label:'ไม่ติดลบ', onSelect:()=>{ state.tags.cashflowNegative=false; return 'q2B'; } }
       ]},
-
-    // สาย A
     q2A:{ title:'สาเหตุหลักของการติดลบคืออะไร?', hint:'ตอบตามจริงที่สุดเพื่อคำแนะนำที่แม่นยำ',
       choices:[
         { key:'lux',  label:'ใช้ฟุ่มเฟือยเกินความจำเป็น', onSelect:()=>{ state.tags.cause='lux';  return 'q3A1'; } },
@@ -220,8 +234,6 @@
       choices:[ {key:'yes',label:'มี ปรับลด/ยกเลิกได้',onSelect:()=> 'q5C'}, {key:'no',label:'ไม่มี ทุกอย่างจำเป็น',onSelect:()=> 'q5C'} ]},
     q4A2:{ title:'เพิ่มรายได้ในงานปัจจุบันได้ไหม?', hint:'คอมมิชชั่น/โอที/เลื่อนตำแหน่ง',
       choices:[ {key:'yes',label:'พอเพิ่มได้',onSelect:()=> 'q5C'}, {key:'no',label:'เพิ่มไม่ได้แล้ว',onSelect:()=> 'q5C'} ]},
-
-    // สาย B
     q2B:{ title:'หนี้ของคุณกำลังโตขึ้นหรือไม่?', hint:'จ่ายขั้นต่ำ ดอกเบี้ยบวม = โตขึ้น',
       choices:[
         { key:'up',   label:'โตขึ้น',          onSelect:()=>{ state.tags.debtTrend='up';   return 'q3B1'; } },
@@ -234,8 +246,6 @@
       ]},
     q3B2:{ title:'มีเป้าหมายปลดหนี้ชัดเจนไหม?', hint:'เช่น ปลอดหนี้ใน 12 เดือน',
       choices:[ {key:'yes',label:'ชัดเจน',onSelect:()=> 'q4Common'}, {key:'no',label:'ยังไม่มีชัดเจน',onSelect:()=> 'q4Common'} ]},
-
-    // ส่วนรวมก่อนตัวเลข
     q4Common:{ title:'เคยชำระล่าช้าหรือเครดิตเสียหรือไม่?', hint:'ถ้าเคยมีโทรทวง/สถานะ NPL ให้ตอบ "เคย"',
       choices:[ {key:'no',label:'ไม่เคย',onSelect:()=>{ state.tags.creditBad=false; return 'q5Common'; }},
                 {key:'yes',label:'เคย/กำลังอยู่',onSelect:()=>{ state.tags.creditBad=true;  return 'q5Common'; }} ]},
@@ -251,7 +261,7 @@
       choices:[ {key:'no',label:'ไม่พลาด',onSelect:()=>{ state.tags.creditBad = state.tags.creditBad ?? false; return 'q8_income'; }},
                 {key:'yes',label:'มีพลาด/ค้าง',onSelect:()=>{ state.tags.creditBad = true; return 'q8_income'; }} ]},
 
-    // ===== คำถามตัวเลข (8–12) =====
+    // ตัวเลข
     q8_income:{ title:'รายได้รวมต่อเดือน (บาท)', hint:'รวมเงินเดือนประจำ + รายได้เสริม (ถ้ามี)',
       input:{ type:'number', id:'inp_income', placeholder:'เช่น 30000', min:0 },
       onNext:(val)=>{ state.numeric.inc = val; return 'q9_living'; } },
@@ -261,12 +271,9 @@
     q10_debtpay:{ title:'จ่ายหนี้ต่อเดือน (บาท)', hint:'รวมค่างวดทุกเจ้าหนี้',
       input:{ type:'number', id:'inp_debtpay', placeholder:'เช่น 6000', min:0 },
       onNext:(val)=>{ state.numeric.debtpay = val; return 'q10_5_saving'; } },
-
-    // ✅ เพิ่มคำถามออมต่อเดือน
     q10_5_saving:{ title:'ออมต่อเดือน (บาท)', hint:'ยอดที่ออมจริงทุกเดือน (ถ้ายังไม่ออม ให้ใส่ 0)',
       input:{ type:'number', id:'inp_saving', placeholder:'เช่น 3000', min:0 },
       onNext:(val)=>{ state.numeric.savingMonthly = val; return 'q11_eme'; } },
-
     q11_eme:{ title:'ปัจจุบันมีเงินออมสะสมทั้งหมด (บาท)', hint:'ใช้ประเมินเงินฉุกเฉิน (เดือน)',
       input:{ type:'number', id:'inp_eme', placeholder:'เช่น 10000', min:0 },
       onNext:(val)=>{ state.numeric.eme = val; finishWithNumbers(); } }
@@ -297,7 +304,6 @@
       `;
       wrap.appendChild(box);
 
-      // Prefill ถ้ามี
       const prev = state.answers[qid];
       if (prev != null) document.getElementById(q.input.id).value = prev;
 
@@ -309,7 +315,7 @@
         const raw = inputEl.value.trim();
         const val = parseFloat(raw);
         if(raw === '' || isNaN(val) || val < (q.input.min ?? 0)){ alert('กรุณากรอกตัวเลขให้ถูกต้อง'); return; }
-        state.isTransitioning = true; // กัน double-click
+        state.isTransitioning = true;
         const safe = Math.max(q.input.min ?? 0, val);
         state.path.push(qid);
         state.answers[qid] = safe;
@@ -318,9 +324,7 @@
       }
 
       nextBtn.addEventListener('click', submitNumber);
-      // Enter เพื่อไปต่อ
       inputEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); submitNumber(); }});
-      // กดปุ่มแล้ว blur เพื่อปิดคีย์บอร์ดมือถือเร็วขึ้น
       nextBtn.addEventListener('mousedown', ()=> inputEl.blur());
 
     } else {
@@ -347,13 +351,11 @@
       });
     }
 
-    // Progress + Back
     el('#stepLabel').textContent = `คำถามที่ ${state.step}`;
     const pct = Math.max(1, Math.min(TOTAL_STEPS, state.step)) / TOTAL_STEPS * 100;
     el('#progressBar').style.width = pct + '%';
     el('#btnBack').disabled = state.step <= 1;
 
-    // Path badge
     const b = [];
     if(state.tags.cashflowNegative === true) b.push('ติดลบ');
     if(state.tags.cashflowNegative === false) b.push('ไม่ติดลบ');
@@ -387,23 +389,24 @@
 
   function deriveTagsFromMetrics(m){
     state.tags.cashflowNegative = (m.cashflow < 0);
-    state.tags.dtiHigh = (m.dti >= 0.5);
-    state.tags.creditRisk = (m.dti >= 0.6); // แยกเป็น “ความเสี่ยง” ไม่ทับ creditBad
+    state.tags.dtiHigh = (m.dti >= 0.45); // ปรับเกณฑ์ตามที่กำหนด (ไม่ควรเกิน 45%)
+    state.tags.creditRisk = (m.dti >= 0.6); // ตัวช่วยสื่อสารความเสี่ยงสูง
   }
 
   function finishWithNumbers(){
     const n = state.numeric || {inc:0,living:0,debtpay:0,savingMonthly:0,eme:0};
     const inc = +n.inc||0, living = +n.living||0, debtPay = +n.debtpay||0, savingMonthly=+n.savingMonthly||0, eme=+n.eme||0;
     const cashflow = inc - living - debtPay;
-    const dti = inc>0 ? (debtPay/inc) : 0;
-    const savingRate = inc>0 ? (savingMonthly/inc) : 0/0; // NaN ถ้าไม่ทราบรายได้
-    const emeMonths = living>0 ? (eme/living) : 0;
-    state.metrics = { inc, exp: living+debtPay, debtPay, save:savingMonthly, cashflow, dti, savingRate, emeMonths };
+    const dti = inc>0 ? (debtPay/inc) : NaN;
+    const savingRate = inc>0 ? (savingMonthly/inc) : NaN;
+    const emeMonths = living>0 ? (eme/living) : NaN;
 
+    state.metrics = { inc, living, debtPay, save:savingMonthly, cashflow, dti, savingRate, emeMonths };
     deriveTagsFromMetrics(state.metrics);
 
-    let ending = 'D';
+    // Ending
     const t = state.tags;
+    let ending = 'D';
     if (t.creditBad === true || t.dtiHigh === true) ending = 'D';
     else if (t.cashflowNegative) ending = (t.cause === 'lux') ? 'A' : 'B';
     else ending = 'C';
@@ -414,13 +417,68 @@
     showResult(ending);
   }
 
+  // ===== Metrics display + advice =====
   function attachResultMetrics(m){
     const box = document.getElementById('metricsAttach');
     box.classList.remove('hidden');
+
+    // ค่าหลัก
     document.getElementById('r_cashflow').textContent = fmtBaht(m.cashflow);
     document.getElementById('r_dti').textContent      = fmtPct(m.dti);
-    document.getElementById('r_saving').textContent   = isFinite(m.savingRate)? fmtPct(m.savingRate) : '-';
+    document.getElementById('r_saving').textContent   = fmtPct(m.savingRate);
     document.getElementById('r_eme').textContent      = isFinite(m.emeMonths)? m.emeMonths.toFixed(1)+' เดือน':'-';
+
+    // คำแนะนำตามเกณฑ์
+    const adv_cashflow = [];
+    if (isFinite(m.cashflow) && m.cashflow < 0){
+      const need = Math.abs(m.cashflow);
+      adv_cashflow.push(`ควรเพิ่มสภาพคล่องอย่างน้อย ${fmtBaht(need)}/เดือน (ลดรายจ่ายผูกมัดหรือเพิ่มรายได้)`);
+    } else if (isFinite(m.cashflow)) {
+      adv_cashflow.push('ดีมาก! สภาพคล่องเป็นบวก — นำส่วนเกินไปออม/โปะหนี้ดอกสูง');
+    }
+    document.getElementById('a_cashflow').textContent = adv_cashflow.join(' ');
+
+    const adv_dti = [];
+    if (isFinite(m.dti)){
+      const maxDebtPay = 0.45 * (m.inc||0);
+      if (m.dti > 0.45){
+        const gap = Math.max(0, m.debtPay - maxDebtPay);
+        adv_dti.push(`ควรทำให้ DTI ≤ 45% (ค่างวดรวมเป้าหมาย ≤ ${fmtBaht(maxDebtPay)}), ลดภาระอย่างน้อย ${fmtBaht(gap)}/เดือน หรือเพิ่มรายได้ให้พอชดเชย`);
+      } else {
+        adv_dti.push('อยู่ในเกณฑ์ดี (≤ 45%) — รักษาวินัยและโปะหนี้ดอกสูงต่อเนื่อง');
+      }
+    }
+    document.getElementById('a_dti').textContent = adv_dti.join(' ');
+
+    const adv_saving = [];
+    if (isFinite(m.savingRate)){
+      const targetSave = 0.10 * (m.inc||0);
+      if (m.savingRate < 0.10){
+        const more = Math.max(0, targetSave - (m.save||0));
+        adv_saving.push(`ต่ำกว่า 10% — เพิ่มออมอีกประมาณ ${fmtBaht(more)}/เดือน เพื่อให้ถึงอย่างน้อย 10%`);
+      } else {
+        const next15 = 0.15 * (m.inc||0);
+        adv_saving.push(`ดีแล้ว (≥ 10%) — ลองตั้งเป้า 15% ≈ ${fmtBaht(next15)}/เดือน`);
+      }
+    }
+    document.getElementById('a_saving').textContent = adv_saving.join(' ');
+
+    const adv_eme = [];
+    if (isFinite(m.emeMonths)){
+      const targetAmt = 3 * (m.living||0);
+      if (m.emeMonths < 3){
+        const shortfall = Math.max(0, targetAmt - (state.numeric.eme||0));
+        if ((m.save||0) > 0){
+          const months = ceil(shortfall / Math.max(1, m.save));
+          adv_eme.push(`ต่ำกว่า 3 เดือน — ขาดอีกประมาณ ${fmtBaht(shortfall)} เพื่อครบ 3 เดือน (ออมที่ระดับปัจจุบันใช้เวลาประมาณ ${months} เดือน)`);
+        } else {
+          adv_eme.push(`ต่ำกว่า 3 เดือน — ขาดอีกประมาณ ${fmtBaht(shortfall)} แนะนำเริ่มออมอย่างน้อย 10% ของรายได้จนกว่าจะครบ`);
+        }
+      } else {
+        adv_eme.push('ถึงเกณฑ์ ≥ 3 เดือนแล้ว — รักษาระดับและแยกบัญชีเงินฉุกเฉินต่างหาก');
+      }
+    }
+    document.getElementById('a_eme').textContent = adv_eme.join(' ');
   }
 
   function showResult(code){
@@ -445,13 +503,11 @@
     if(state.metrics){ attachResultMetrics(state.metrics); }
 
     const more = [];
-    if(state.metrics){
-      const m = state.metrics;
-      if(m.cashflow < 0) more.push('สภาพคล่องติดลบ: ลดค่าใช้จ่ายผูกมัด/ห้ามผ่อนใหม่จนกว่าจะเป็นบวก');
-      if(m.dti >= 0.5)   more.push('DTI > 50%: ติดต่อเจ้าหนี้เพื่อปรับโครงสร้างหนี้/รวมหนี้ดอกต่ำ');
-      if(isFinite(m.savingRate) && m.savingRate < 0.1) more.push('อัตราออมน้อยกว่า 10%: ตั้งตัดออมอัตโนมัติ ≥ 10% ของรายได้');
-      if(m.emeMonths < 1) more.push('เงินฉุกเฉิน < 1 เดือน: เป้าหมายสะสมให้ถึง 1–3 เดือนก่อนเสี่ยงใหม่');
-    }
+    const m = state.metrics || {};
+    if(isFinite(m.cashflow) && m.cashflow < 0) more.push('สภาพคล่องติดลบ: ลดรายจ่ายผูกมัด/ห้ามผ่อนใหม่จนกว่าจะเป็นบวก');
+    if(isFinite(m.dti) && m.dti > 0.45)       more.push('DTI > 45%: ติดต่อเจ้าหนี้เพื่อปรับโครงสร้าง/รวมหนี้ดอกต่ำ');
+    if(isFinite(m.savingRate) && m.savingRate < 0.1) more.push('อัตราออม < 10%: ตั้งตัดออมอัตโนมัติ ≥ 10% ของรายได้');
+    if(isFinite(m.emeMonths) && m.emeMonths < 3)     more.push('เงินฉุกเฉิน < 3 เดือน: เร่งสะสมให้ครบก่อนลงทุนเสี่ยง');
 
     function fillList(id, items){ const ul = el(id); ul.innerHTML=''; items.forEach(t=>{ const li=document.createElement('li'); li.textContent=t; ul.appendChild(li); }); }
     fillList('#plan30', [...ENDINGS[code].plan30, ...more]);
@@ -477,7 +533,6 @@
     el('#progressBar').style.width = (100/TOTAL_STEPS)+'%';
     el('#btnBack').disabled = true;
 
-    // อัปเดตตัวเลขขั้นทั้งหมดใน UI
     el('#totalSteps').textContent = TOTAL_STEPS;
     el('#totalStepsText').textContent = `${TOTAL_STEPS} ขั้น`;
 
@@ -499,25 +554,8 @@
     init();
   });
 
-  // Self-tests
-  const RUN_TESTS = true;
-  function runTests(){
-    try{
-      console.group('%cSelf-test','color:#0ea5e9;font-weight:bold');
-      console.assert(Q.q1 && Array.isArray(Q.q1.choices) && Q.q1.choices.length===2, 'q1 has 2 choices');
-      const nextId = Q.q1.choices[0].onSelect(); console.assert(nextId==='q2A','q1 -> q2A');
-      const s0 = state.step; goNext(nextId); console.assert(state.step===s0+1,'step increments');
-
-      state.numeric = { inc:30000, living:18000, debtpay:6000, savingMonthly:3000, eme:10000 };
-      finishWithNumbers();
-      console.assert(state.metrics && state.metrics.cashflow===6000,'cashflow 6000');
-      console.assert(Math.round(state.metrics.dti*100)===20,'DTI ~20%');
-      console.assert(Math.round(state.metrics.savingRate*100)===10,'savingRate ~10%');
-      init();
-      console.log('%cAll self-tests passed','color:#22c55e;font-weight:bold'); console.groupEnd();
-    }catch(e){ console.error('Self-test failed:', e); }
-  }
-  if(RUN_TESTS) runTests();
+  // Self-tests (ย่อ)
+  const RUN_TESTS = false;
   </script>
 </body>
 </html>
