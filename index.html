@@ -622,7 +622,7 @@
       bRetireAge.value = aRetireAge.value;
       bLifeAge.value = aLifeAge.value;
       if(!bLumpGroup.classList.contains('hidden')){
-        // skip
+        // skip ถ้าอยู่โหมดเงินก้อน
       }else{
         bNeedPerMonth.value = aNeedPerMonth.value;
       }
@@ -814,7 +814,7 @@
 
       if(scroll) el('bResult').scrollIntoView({behavior:'smooth', block:'start'});
 
-      // ถ้าผ่าน validation ค่อยส่งเข้า GAS
+      // ส่งเข้า GAS (ผ่าน CORS แบบ no-cors)
       sendToGAS({
         mode:'basic',
         orgType:selectedOrgType,
@@ -921,7 +921,7 @@
 
       if(scroll) el('aResult').scrollIntoView({behavior:'smooth', block:'start'});
 
-      // ส่งเข้า GAS เฉพาะกรณีผ่าน validation
+      // ส่งเข้า GAS (ผ่าน CORS แบบ no-cors)
       sendToGAS({
         mode:'advance',
         orgType:selectedOrgType,
@@ -1010,8 +1010,9 @@
     aCurrentAge.addEventListener('change', autoAdjustInflation);
     aRetireAge.addEventListener('change', autoAdjustInflation);
 
-    // ===== send to GAS =====
+    // ===== send to GAS (no-cors + FormData) =====
     function sendToGAS(payload){
+      // ยังไม่เลือกหน่วยงาน → ให้เลือกก่อน
       if(!selectedOrgName){
         orgOverlay.style.display = 'flex';
         return;
@@ -1020,13 +1021,21 @@
         ...payload,
         ts: new Date().toISOString()
       };
-      try{
+
+      const fd = new FormData();
+      Object.keys(data).forEach(key => {
+        fd.append(key, typeof data[key] === 'number' ? String(data[key]) : data[key]);
+      });
+
+      try {
         fetch(GAS_URL, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify(data)
-        }).catch(()=>{});
-      }catch(e){}
+          method: 'POST',
+          mode: 'no-cors',
+          body: fd
+        }).catch(() => {});
+      } catch (e) {
+        // เงียบไป ไม่ต้องให้ user เห็น
+      }
     }
 
     // first run
