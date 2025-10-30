@@ -42,7 +42,7 @@
       gap:.45rem;
       transition:.1s;
       box-shadow:0 12px 22px rgba(15,23,42,.12);
-      min-height:40px; /* ป้องกันหด */
+      min-height:40px;
     }
     .btn-primary:hover{filter:brightness(1.04);transform:translateY(-1px);}
     .btn-primary.is-loading{pointer-events:none;opacity:.85;}
@@ -83,7 +83,6 @@
   </header>
 
   <main class="app-shell">
-    <!-- Tabs -->
     <div class="card p-3 flex flex-col gap-3">
       <div class="tabs w-full md:w-fit">
         <button id="tabBasic" class="tab-btn active">ทั่วไป (Basic)</button>
@@ -200,22 +199,22 @@
           <div class="grid grid-cols-2 gap-3">
             <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 space-y-1">
               <div class="flex items-center justify-between gap-1">
-                <p class="text-[11px] text-slate-700">เงินเฟ้อเฉลี่ย</p>
-                <p id="inflationLabel" class="text-[11px] font-semibold text-indigo-600">2.5%</p>
+                <p class="text-[11px] text-slate-700">เงินเฟ้อเฉลี่ยต่อปี</p>
+                <p class="text-[10px] text-slate-400">(%)</p>
               </div>
-              <input id="inflation" type="range" min="0.5" max="5" step="0.1" value="2.5" class="w-full accent-indigo-500" />
+              <input id="inflation" type="number" min="0.5" max="8" step="0.1" value="2.5" class="input-premium" />
               <p class="text-[10px] text-slate-400 leading-snug">
-                ใช้ (1+infl)^ปี
+                ระบบจะคูณ (1+infl/100)^ปี ที่เหลือ
               </p>
             </div>
             <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 space-y-1">
               <div class="flex items-center justify-between gap-1">
-                <p class="text-[11px] text-slate-700">ผลตอบแทนเฉลี่ย</p>
-                <p id="returnLabel" class="text-[11px] font-semibold text-indigo-600">6.0%</p>
+                <p class="text-[11px] text-slate-700">ผลตอบแทนเฉลี่ยต่อปี</p>
+                <p class="text-[10px] text-slate-400">(%)</p>
               </div>
-              <input id="returnRate" type="range" min="0" max="12" step="0.1" value="6" class="w-full accent-indigo-500" />
+              <input id="returnRate" type="number" min="0" max="15" step="0.1" value="6" class="input-premium" />
               <p class="text-[10px] text-slate-400 leading-snug">
-                0% = ออมเฉยๆ
+                0 = ออมเฉยๆ / ไม่มีการลงทุน
               </p>
             </div>
           </div>
@@ -268,7 +267,7 @@
             <p class="text-[10px] text-slate-400">เทียบออมแบบฝาก/ไม่ลงทุน กับออมแบบลงทุนทุกเดือน</p>
           </div>
 
-          <!-- ที่ซ่อนเพื่อกัน JS -->
+          <!-- กัน JS -->
           <div class="hidden">
             <span id="sumSaveNoInv"></span>
             <span id="sumSaveInv"></span>
@@ -281,7 +280,6 @@
   <script>
     const el = id => document.getElementById(id);
 
-    // utils
     function safeNumber(v, fallback = 0){
       const n = parseFloat(v);
       return isNaN(n) ? fallback : n;
@@ -318,7 +316,7 @@
       panelBasic.classList.add('hidden');
     });
 
-    // BASIC
+    // BASIC refs
     const bCurrentAge = el('bCurrentAge');
     const bRetireAge = el('bRetireAge');
     const bLifeAge = el('bLifeAge');
@@ -331,11 +329,53 @@
     const bCalcBtn = el('bCalcBtn');
     const bDemoBtn = el('bDemoBtn');
 
+    // ADVANCE refs
+    const aCurrentAge = el('aCurrentAge');
+    const aRetireAge = el('aRetireAge');
+    const aLifeAge = el('aLifeAge');
+    const aNeedPerMonth = el('aNeedPerMonth');
+    const inflation = el('inflation');
+    const returnRate = el('returnRate');
+    const aCalcBtn = el('aCalcBtn');
+    const aDemoBtn = el('aDemoBtn');
+
+    // ===== bi-directional sync guard =====
+    let isSyncing = false;
+    function linkBasicToAdvance(){
+      if(isSyncing) return;
+      isSyncing = true;
+      aCurrentAge.value = bCurrentAge.value;
+      aRetireAge.value = bRetireAge.value;
+      aLifeAge.value = bLifeAge.value;
+      // ซิงก์เฉพาะตอนอยู่โหมดรายเดือน
+      if(!bMonthlyGroup.classList.contains('hidden')){
+        aNeedPerMonth.value = bNeedPerMonth.value;
+      }
+      isSyncing = false;
+    }
+    function linkAdvanceToBasic(){
+      if(isSyncing) return;
+      isSyncing = true;
+      bCurrentAge.value = aCurrentAge.value;
+      bRetireAge.value = aRetireAge.value;
+      bLifeAge.value = aLifeAge.value;
+      // ซิงก์กลับ ถ้า basic อยู่โหมดรายเดือน
+      if(!bLumpGroup.classList.contains('hidden')){
+        // ถ้าตอนนี้ basic เป็นโหมดเงินก้อนอยู่ ไม่ไปแก้เงินก้อน
+      }else{
+        bNeedPerMonth.value = aNeedPerMonth.value;
+      }
+      isSyncing = false;
+    }
+
+    // toggle basic input mode
     bModeMonthly.addEventListener('click', () => {
       bModeMonthly.classList.add('active');
       bModeLump.classList.remove('active');
       bMonthlyGroup.classList.remove('hidden');
       bLumpGroup.classList.add('hidden');
+      // พอกลับมาโหมดเดือน ซิงก์เดือนจาก advance อีกครั้ง
+      bNeedPerMonth.value = aNeedPerMonth.value;
     });
     bModeLump.addEventListener('click', () => {
       bModeLump.classList.add('active');
@@ -387,21 +427,12 @@
       bLifeAge.value = 85;
       bNeedPerMonth.value = 40000;
       bLumpSumInput.value = 3500000;
+      linkBasicToAdvance();
       calcBasic(false);
+      calcAdvance(false);
     });
 
-    // ADVANCE
-    const aCurrentAge = el('aCurrentAge');
-    const aRetireAge = el('aRetireAge');
-    const aLifeAge = el('aLifeAge');
-    const aNeedPerMonth = el('aNeedPerMonth');
-    const inflation = el('inflation');
-    const inflationLabel = el('inflationLabel');
-    const returnRate = el('returnRate');
-    const returnLabel = el('returnLabel');
-    const aCalcBtn = el('aCalcBtn');
-    const aDemoBtn = el('aDemoBtn');
-
+    // ADVANCE calc
     function calcAdvance(scroll = true){
       const currentAge = safeNumber(aCurrentAge.value, 0);
       const retireAge = safeNumber(aRetireAge.value, currentAge);
@@ -456,14 +487,22 @@
       }, 320);
     });
 
-    inflation.addEventListener('input', e => {
-      const v = safeNumber(e.target.value, 2.5);
-      inflationLabel.textContent = v.toFixed(1) + '%';
+    // ====== SYNC event listeners ======
+    bCurrentAge.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false); });
+    bRetireAge.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false); });
+    bLifeAge.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false); });
+    bNeedPerMonth.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false); });
+
+    aCurrentAge.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false); });
+    aRetireAge.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false); });
+    aLifeAge.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false); });
+    aNeedPerMonth.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false); });
+
+    // inflation / return
+    inflation.addEventListener('input', () => {
       calcAdvance(false);
     });
-    returnRate.addEventListener('input', e => {
-      const v = safeNumber(e.target.value, 0);
-      returnLabel.textContent = v.toFixed(1) + '%';
+    returnRate.addEventListener('input', () => {
       calcAdvance(false);
     });
 
@@ -473,10 +512,10 @@
       aLifeAge.value = 88;
       aNeedPerMonth.value = 45000;
       inflation.value = 2.7;
-      inflationLabel.textContent = '2.7%';
       returnRate.value = 6.5;
-      returnLabel.textContent = '6.5%';
+      linkAdvanceToBasic();
       calcAdvance(false);
+      calcBasic(false);
     });
 
     function autoAdjustInflation(){
@@ -485,7 +524,6 @@
         const cur = safeNumber(inflation.value, 2.5);
         const adj = Math.min(cur + 0.4, 3.5);
         inflation.value = adj;
-        inflationLabel.textContent = adj.toFixed(1) + '%';
       }
       calcAdvance(false);
     }
