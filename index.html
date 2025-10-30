@@ -88,6 +88,31 @@
       50%{box-shadow:0 0 32px 0 rgba(99,102,241,.12);}
       100%{box-shadow:0 0 0 0 rgba(99,102,241,.0);}
     }
+
+    /* ปุ่มโหลด */
+    .btn-calc{
+      position:relative;
+      overflow:hidden;
+      transition:transform .12s ease-out, box-shadow .12s ease-out;
+    }
+    .btn-calc:active{
+      transform:translateY(1px);
+    }
+    .btn-calc.is-loading{
+      pointer-events:none;
+      opacity:.9;
+      transform:translateY(1px) scale(.998);
+    }
+    .btn-calc .spinner{
+      width:16px; height:16px;
+      border:2px solid rgba(15,23,42,.15);
+      border-top-color:#0f172a;
+      border-radius:9999px;
+      animation:spin .6s linear infinite;
+    }
+    @keyframes spin{
+      to{ transform:rotate(360deg); }
+    }
   </style>
 </head>
 <body class="pb-10">
@@ -181,8 +206,8 @@
         </p>
       </div>
 
-      <button id="calcBtn" class="w-full py-2.5 rounded-xl bg-slate-50 text-slate-950 text-sm font-medium hover:bg-slate-200/90 transition">
-        คำนวณเป้าหมายเกษียณ
+      <button id="calcBtn" class="btn-calc w-full py-2.5 rounded-xl bg-slate-50 text-slate-950 text-sm font-medium hover:bg-slate-200/90 transition flex items-center justify-center gap-2">
+        <span class="btn-text">คำนวณเป้าหมายเกษียณ</span>
       </button>
     </section>
 
@@ -264,6 +289,7 @@
     const inflationLabel = el('inflationLabel');
     const returnRateEl = el('returnRate');
     const returnLabel = el('returnLabel');
+    const calcBtn = el('calcBtn');
 
     function formatMoney(num){
       if(isNaN(num)) return '–';
@@ -286,19 +312,15 @@
       const yearsAfterRetire = Math.max(lifeAge - retireAge, 0);
       el('summaryRetireAge').textContent = retireAge;
 
-      // เงินใช้ต่อเดือนตอนเกษียณ
       const futureMonthly = needNowPerMonth * Math.pow(1 + infl, yearsToRetire);
       const futureYearly = futureMonthly * 12;
 
-      // เงินก้อน
       const lumpSum = futureMonthly * 12 * yearsAfterRetire;
 
-      // ระยะเวลาออม
       const monthsToSave = Math.max(yearsToRetire * 12, 1);
       const savePerMonthNoInv = lumpSum / monthsToSave;
       const savePerYearNoInv = savePerMonthNoInv * 12;
 
-      // มีลงทุน
       let savePerMonthInv;
       if(retRate > 0){
         const r = retRate / 12;
@@ -310,7 +332,6 @@
       const savePerYearInv = savePerMonthInv * 12;
       const diffPerMonth = savePerMonthNoInv - savePerMonthInv;
 
-      // แสดง
       el('needLumpSum').textContent = formatMoney(lumpSum);
       el('savePerMonthNoInv').textContent = formatMoney(savePerMonthNoInv);
       el('savePerMonthInv').textContent = formatMoney(savePerMonthInv);
@@ -324,7 +345,6 @@
       el('saveDiff').textContent = formatMoney(diffPerMonth * 12);
       el('lastCalcTime').textContent = 'คำนวณล่าสุด: ' + new Date().toLocaleString('th-TH');
 
-      // highlight ถ้าเคสลงทุนไม่คุ้ม
       const invCard = el('savePerMonthInv').parentElement;
       if(savePerMonthInv > savePerMonthNoInv){
         invCard.classList.add('ring-2','ring-rose-400/35');
@@ -333,7 +353,24 @@
       }
     }
 
-    // events
+    // ปุ่มกดคำนวณ + animation
+    function handleCalcClick(){
+      if(calcBtn.classList.contains('is-loading')) return;
+      calcBtn.classList.add('is-loading');
+      const oldText = calcBtn.querySelector('.btn-text').textContent;
+      calcBtn.innerHTML = `
+        <div class="spinner"></div>
+        <span>กำลังคำนวณ...</span>
+      `;
+      // คำนวณเลย
+      calc();
+      // ปล่อยปุ่มให้กลับมาเดิมหน่อยนึงให้ user เห็น
+      setTimeout(() => {
+        calcBtn.classList.remove('is-loading');
+        calcBtn.innerHTML = `<span class="btn-text">${oldText}</span>`;
+      }, 400); // ปรับได้ 250-600ms
+    }
+
     inflationEl.addEventListener('input', e => {
       inflationLabel.textContent = parseFloat(e.target.value).toFixed(1) + '%';
       calc();
@@ -355,9 +392,8 @@
       calc();
     });
 
-    el('calcBtn').addEventListener('click', calc);
+    calcBtn.addEventListener('click', handleCalcClick);
 
-    // auto-adjust inflation for very long horizon
     function autoAdjustInflation(){
       const yearsToRetire = Math.max(parseFloat(retireAgeEl.value) - parseFloat(currentAgeEl.value), 0);
       if(yearsToRetire >= 25){
