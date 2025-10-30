@@ -18,6 +18,7 @@
       --line:#e5e7eb;
       --accent:#6366f1;
       --success:#0ea5e9;
+      --error:#ef4444;
     }
     body{
       font-family:'Space Grotesk','Kanit',system-ui,-apple-system,'Segoe UI',sans-serif;
@@ -29,6 +30,8 @@
     .card{background:var(--surface);border:1px solid rgba(15,23,42,.025);border-radius:1.25rem;box-shadow:0 16px 38px rgba(15,23,42,.03);}
     .input-premium{width:100%;background:#fff;border:1px solid #e2e8f0;border-radius:.9rem;padding:.55rem .75rem;font-size:.88rem;outline:none;transition:.1s;}
     .input-premium:focus{border:1px solid rgba(99,102,241,.94);box-shadow:0 0 0 3px rgba(99,102,241,.10);}
+    .input-error{border-color:rgba(239,68,68,0.9) !important; box-shadow:0 0 0 3px rgba(239,68,68,.12) !important;}
+    .error-text{font-size:10px;color:var(--error);margin-top:3px;}
     .btn-primary{
       background:linear-gradient(130deg,#1f2937 0%,#111827 100%);
       color:#fff;
@@ -236,15 +239,18 @@
           <div class="space-y-2">
             <label class="text-[11px] text-slate-600">อายุปัจจุบัน</label>
             <input id="bCurrentAge" type="number" min="18" max="70" value="30" class="input-premium" />
+            <p id="bCurrentAgeErr" class="error-text" style="display:none"></p>
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div class="space-y-2">
               <label class="text-[11px] text-slate-600">อายุที่ต้องการเกษียณ</label>
-              <input id="bRetireAge" type="number" min="40" max="90" value="60" class="input-premium" />
+              <input id="bRetireAge" type="number" min="40" max="80" value="60" class="input-premium" />
+              <p id="bRetireAgeErr" class="error-text" style="display:none"></p>
             </div>
             <div class="space-y-2">
               <label class="text-[11px] text-slate-600">คาดว่าจะมีชีวิตถึงอายุ</label>
-              <input id="bLifeAge" type="number" min="50" max="110" value="85" class="input-premium" />
+              <input id="bLifeAge" type="number" min="70" max="100" value="85" class="input-premium" />
+              <p id="bLifeAgeErr" class="error-text" style="display:none"></p>
             </div>
           </div>
 
@@ -260,20 +266,21 @@
           <!-- monthly input -->
           <div id="bMonthlyGroup" class="space-y-2">
             <label class="text-[11px] text-slate-600">เงินที่ต้องการใช้/เดือนหลังเกษียณ (มูลค่าปัจจุบัน)</label>
-            <input id="bNeedPerMonth" type="number" min="0" step="500" value="30000" class="input-premium" />
+            <input id="bNeedPerMonth" type="number" min="3000" step="500" value="30000" class="input-premium" />
+            <p id="bNeedPerMonthErr" class="error-text" style="display:none"></p>
           </div>
 
           <!-- current saving basic -->
           <div class="space-y-2">
             <label class="text-[11px] text-slate-600">จำนวนเงินออมเพื่อเกษียณ ณ ปัจจุบัน</label>
             <input id="bCurrentSaving" type="number" min="0" step="1000" value="0" class="input-premium" />
-            <p class="text-[10px] text-slate-400">ถ้ามีเงินเก็บไว้แล้วให้ใส่ เพื่อหาว่าต้องเก็บเพิ่มอีกเท่าไหร่</p>
           </div>
 
           <!-- lump input -->
           <div id="bLumpGroup" class="space-y-2 hidden">
             <label class="text-[11px] text-slate-600">เงินก้อนที่อยากมีในวันเกษียณ</label>
-            <input id="bLumpSumInput" type="number" min="0" step="10000" value="3000000" class="input-premium" />
+            <input id="bLumpSumInput" type="number" min="50000" step="10000" value="3000000" class="input-premium" />
+            <p id="bLumpErr" class="error-text" style="display:none"></p>
             <p class="text-[10px] text-slate-400">ระบบจะแปลงเป็นใช้ต่อปีและต่อเดือนให้</p>
           </div>
 
@@ -318,6 +325,7 @@
             </p>
             <p id="bYearsLabel" class="text-[10px] text-slate-400 mt-1">–</p>
             <p class="text-[10px] text-slate-400 mt-1">* Basic จะไม่คิดเงินเฟ้อและผลตอบแทน เพื่อให้เข้าใจง่าย</p>
+            <p id="bGlobalErr" class="text-[10px] text-red-500 mt-1" style="display:none"></p>
           </div>
         </section>
       </div>
@@ -333,26 +341,29 @@
           <div class="space-y-2">
             <label class="text-[11px] text-slate-600">อายุปัจจุบัน</label>
             <input id="aCurrentAge" type="number" min="18" max="70" value="30" class="input-premium" />
+            <p id="aCurrentAgeErr" class="error-text" style="display:none"></p>
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div class="space-y-2">
               <label class="text-[11px] text-slate-600">อายุที่ต้องการเกษียณ</label>
-              <input id="aRetireAge" type="number" min="40" max="90" value="60" class="input-premium" />
+              <input id="aRetireAge" type="number" min="40" max="80" value="60" class="input-premium" />
+              <p id="aRetireAgeErr" class="error-text" style="display:none"></p>
             </div>
             <div class="space-y-2">
               <label class="text-[11px] text-slate-600">คาดว่าจะมีชีวิตถึงอายุ</label>
-              <input id="aLifeAge" type="number" min="50" max="110" value="85" class="input-premium" />
+              <input id="aLifeAge" type="number" min="70" max="100" value="85" class="input-premium" />
+              <p id="aLifeAgeErr" class="error-text" style="display:none"></p>
             </div>
           </div>
           <div class="space-y-2">
             <label class="text-[11px] text-slate-600">เงินที่ต้องการใช้/เดือนหลังเกษียณ (มูลค่าปัจจุบัน)</label>
-            <input id="aNeedPerMonth" type="number" min="0" step="500" value="30000" class="input-premium" />
+            <input id="aNeedPerMonth" type="number" min="3000" step="500" value="30000" class="input-premium" />
+            <p id="aNeedPerMonthErr" class="error-text" style="display:none"></p>
           </div>
           <!-- current saving advance -->
           <div class="space-y-2">
             <label class="text-[11px] text-slate-600">จำนวนเงินออมเพื่อเกษียณ ณ ปัจจุบัน</label>
             <input id="aCurrentSaving" type="number" min="0" step="1000" value="0" class="input-premium" />
-            <p class="text-[10px] text-slate-400">ใช้ลบออกจากเป้าหมายก่อน แล้วค่อยเฉลี่ยออม</p>
           </div>
           <div class="grid grid-cols-2 gap-3">
             <!-- Inflation card -->
@@ -364,9 +375,10 @@
                 </button>
               </div>
               <div class="flex items-center gap-2">
-                <input id="inflation" type="number" min="0" max="10" step="0.1" value="2.5" class="input-premium" />
+                <input id="inflation" type="number" min="0" max="8" step="0.1" value="2.5" class="input-premium" />
                 <span class="text-[11px] text-slate-500">%</span>
               </div>
+              <p id="aInflErr" class="error-text" style="display:none"></p>
               <p class="text-[10px] text-slate-400 leading-snug">
                 ระบบจะคูณ (1+infl/100)^ปี ที่เหลือ
               </p>
@@ -378,9 +390,10 @@
                 <p class="text-[10px] text-slate-400">(%)</p>
               </div>
               <div class="flex items-center gap-2">
-                <input id="returnRate" type="number" min="0" max="20" step="0.1" value="6" class="input-premium" />
+                <input id="returnRate" type="number" min="0" max="15" step="0.1" value="6" class="input-premium" />
                 <span class="text-[11px] text-slate-500">%</span>
               </div>
+              <p id="aReturnErr" class="error-text" style="display:none"></p>
               <p class="text-[10px] text-slate-400 leading-snug">
                 0 = ออมเฉยๆ / ไม่มีการลงทุน
               </p>
@@ -442,6 +455,7 @@
             </p>
             <p id="yearsToSaveLabel" class="text-[10px] text-slate-400">–</p>
             <p class="text-[10px] text-slate-400">เทียบออมแบบฝาก/ไม่ลงทุน กับออมแบบลงทุนทุกเดือน</p>
+            <p id="aGlobalErr" class="text-[10px] text-red-500 mt-1" style="display:none"></p>
           </div>
 
           <!-- กัน JS -->
@@ -476,10 +490,6 @@
       const node = el(id);
       if(node) node.textContent = text;
     }
-    // clamp helper
-    function clamp(val, min, max){
-      return Math.min(Math.max(val, min), max);
-    }
 
     // ===== ORG OVERLAY =====
     const orgOverlay = el('orgOverlay');
@@ -511,14 +521,11 @@
       branchGroup.classList.add('hidden');
     });
 
-    // คลิกเลือก org (ทั้ง branch และ hq)
     [...branchGroup.querySelectorAll('.org-btn[data-org]'), ...hqGroup.querySelectorAll('.org-btn[data-org]')].forEach(btn => {
       btn.addEventListener('click', () => {
         selectedOrgName = btn.getAttribute('data-org');
-        // clear active เดิม
         [...branchGroup.querySelectorAll('.org-btn[data-org]'), ...hqGroup.querySelectorAll('.org-btn[data-org]')].forEach(b=>b.classList.remove('active'));
         btn.classList.add('active');
-        // โชว์ consent
         consentModal.style.display = 'flex';
       });
     });
@@ -565,7 +572,15 @@
     const bCalcBtn = el('bCalcBtn');
     const bDemoBtn = el('bDemoBtn');
 
-    // ADVANCE refs
+    // BASIC error refs
+    const bCurrentAgeErr = el('bCurrentAgeErr');
+    const bRetireAgeErr = el('bRetireAgeErr');
+    const bLifeAgeErr = el('bLifeAgeErr');
+    const bNeedPerMonthErr = el('bNeedPerMonthErr');
+    const bLumpErr = el('bLumpErr');
+    const bGlobalErr = el('bGlobalErr');
+
+    // ADV refs
     const aCurrentAge = el('aCurrentAge');
     const aRetireAge = el('aRetireAge');
     const aLifeAge = el('aLifeAge');
@@ -576,6 +591,15 @@
     const aCalcBtn = el('aCalcBtn');
     const aDemoBtn = el('aDemoBtn');
     const inflationSuggestBtn = el('inflationSuggestBtn');
+
+    // ADV error refs
+    const aCurrentAgeErr = el('aCurrentAgeErr');
+    const aRetireAgeErr = el('aRetireAgeErr');
+    const aLifeAgeErr = el('aLifeAgeErr');
+    const aNeedPerMonthErr = el('aNeedPerMonthErr');
+    const aInflErr = el('aInflErr');
+    const aReturnErr = el('aReturnErr');
+    const aGlobalErr = el('aGlobalErr');
 
     // ===== bi-directional sync guard =====
     let isSyncing = false;
@@ -621,46 +645,165 @@
       bLumpGroup.classList.remove('hidden');
     });
 
+    // ========== VALIDATION ==========
+    function clearBasicErrors(){
+      [bCurrentAge, bRetireAge, bLifeAge, bNeedPerMonth, bLumpSumInput].forEach(i=>i.classList.remove('input-error'));
+      [bCurrentAgeErr, bRetireAgeErr, bLifeAgeErr, bNeedPerMonthErr, bLumpErr, bGlobalErr].forEach(e=>{e.style.display='none'; e.textContent='';});
+    }
+    function clearAdvanceErrors(){
+      [aCurrentAge, aRetireAge, aLifeAge, aNeedPerMonth, inflation, returnRate].forEach(i=>i.classList.remove('input-error'));
+      [aCurrentAgeErr, aRetireAgeErr, aLifeAgeErr, aNeedPerMonthErr, aInflErr, aReturnErr, aGlobalErr].forEach(e=>{e.style.display='none'; e.textContent='';});
+    }
+
+    function validateBasic(){
+      clearBasicErrors();
+      let ok = true;
+      const c = safeNumber(bCurrentAge.value, 0);
+      const r = safeNumber(bRetireAge.value, 0);
+      const l = safeNumber(bLifeAge.value, 0);
+
+      if(c <= 0){
+        ok = false;
+        bCurrentAge.classList.add('input-error');
+        bCurrentAgeErr.textContent = 'กรุณาใส่อายุปัจจุบันให้ถูกต้อง';
+        bCurrentAgeErr.style.display = 'block';
+      }
+      if(r < c){
+        ok = false;
+        bRetireAge.classList.add('input-error');
+        bRetireAgeErr.textContent = 'อายุเกษียณต้องมากกว่าหรือเท่ากับอายุปัจจุบัน';
+        bRetireAgeErr.style.display = 'block';
+      }
+      if(l < r){
+        ok = false;
+        bLifeAge.classList.add('input-error');
+        bLifeAgeErr.textContent = 'อายุคาดว่าจะอยู่ถึง ต้องมากกว่าหรือเท่ากับอายุเกษียณ';
+        bLifeAgeErr.style.display = 'block';
+      }
+
+      if(!bMonthlyGroup.classList.contains('hidden')){
+        const m = safeNumber(bNeedPerMonth.value, 0);
+        if(m <= 0){
+          ok = false;
+          bNeedPerMonth.classList.add('input-error');
+          bNeedPerMonthErr.textContent = 'ค่าใช้จ่ายต่อเดือนต้องมากกว่า 0';
+          bNeedPerMonthErr.style.display = 'block';
+        }
+      }else{
+        const lump = safeNumber(bLumpSumInput.value, 0);
+        if(lump <= 0){
+          ok = false;
+          bLumpSumInput.classList.add('input-error');
+          bLumpErr.textContent = 'เงินก้อนที่ต้องการต้องมากกว่า 0';
+          bLumpErr.style.display = 'block';
+        }
+      }
+
+      if(!ok){
+        bGlobalErr.textContent = 'พบข้อมูลที่กรอกไม่ถูกต้อง กรุณาแก้ไขก่อนคำนวณ';
+        bGlobalErr.style.display = 'block';
+      }
+
+      return ok;
+    }
+
+    function validateAdvance(){
+      clearAdvanceErrors();
+      let ok = true;
+      const c = safeNumber(aCurrentAge.value, 0);
+      const r = safeNumber(aRetireAge.value, 0);
+      const l = safeNumber(aLifeAge.value, 0);
+      const m = safeNumber(aNeedPerMonth.value, 0);
+      const infl = safeNumber(inflation.value, 0);
+      const ret = safeNumber(returnRate.value, 0);
+
+      if(c <= 0){
+        ok = false;
+        aCurrentAge.classList.add('input-error');
+        aCurrentAgeErr.textContent = 'กรุณาใส่อายุปัจจุบันให้ถูกต้อง';
+        aCurrentAgeErr.style.display = 'block';
+      }
+      if(r < c){
+        ok = false;
+        aRetireAge.classList.add('input-error');
+        aRetireAgeErr.textContent = 'อายุเกษียณต้องมากกว่าหรือเท่ากับอายุปัจจุบัน';
+        aRetireAgeErr.style.display = 'block';
+      }
+      if(l < r){
+        ok = false;
+        aLifeAge.classList.add('input-error');
+        aLifeAgeErr.textContent = 'อายุคาดว่าจะอยู่ถึง ต้องมากกว่าหรือเท่ากับอายุเกษียณ';
+        aLifeAgeErr.style.display = 'block';
+      }
+      if(m <= 0){
+        ok = false;
+        aNeedPerMonth.classList.add('input-error');
+        aNeedPerMonthErr.textContent = 'ค่าใช้จ่ายต่อเดือนต้องมากกว่า 0';
+        aNeedPerMonthErr.style.display = 'block';
+      }
+      if(infl < 0 || infl > 8){
+        ok = false;
+        inflation.classList.add('input-error');
+        aInflErr.textContent = 'เงินเฟ้อต้องอยู่ระหว่าง 0% – 8%';
+        aInflErr.style.display = 'block';
+      }
+      if(ret < 0 || ret > 15){
+        ok = false;
+        returnRate.classList.add('input-error');
+        aReturnErr.textContent = 'ผลตอบแทนต้องอยู่ระหว่าง 0% – 15%';
+        aReturnErr.style.display = 'block';
+      }
+
+      if(!ok){
+        aGlobalErr.textContent = 'พบข้อมูลที่กรอกไม่ถูกต้อง กรุณาแก้ไขก่อนคำนวณ';
+        aGlobalErr.style.display = 'block';
+      }
+
+      return ok;
+    }
+
+    // ====== คำนวณ BASIC ======
+    function showZeroBasic(scroll=true){
+      setIfExist('bNeedLumpSum', '0 บาท');
+      setIfExist('bHaveNow', '0 บาท');
+      setIfExist('bNeedToSaveMore', '0 บาท');
+      setIfExist('bSavePerMonth', '0 บาท');
+      setIfExist('bFutureYearly', '0 บาท');
+      setIfExist('bYearsLabel', '—');
+      if(scroll) el('bResult').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
     function calcBasic(scroll = true){
-      let currentAge = safeNumber(bCurrentAge.value, 0);
-      let retireAge = safeNumber(bRetireAge.value, currentAge);
-      let lifeAge = safeNumber(bLifeAge.value, retireAge + 20);
+      const isValid = validateBasic();
+      if(!isValid){
+        showZeroBasic(scroll);
+        return {ok:false};
+      }
+
+      const currentAge = safeNumber(bCurrentAge.value, 0);
+      const retireAge = safeNumber(bRetireAge.value, currentAge);
+      const lifeAge = safeNumber(bLifeAge.value, retireAge + 20);
       const alreadyHave = safeNumber(bCurrentSaving.value, 0);
 
-      // กันอายุกลับทาง
-      if(retireAge < currentAge){
-        retireAge = currentAge;
-        bRetireAge.value = retireAge;
-      }
-      // กันอายุเกษียณมากกว่าอายุสิ้นอายุ
-      if(lifeAge < retireAge){
-        // แสดงว่าไม่มีช่วงหลังเกษียณ
-        lifeAge = retireAge;
-        bLifeAge.value = lifeAge;
-      }
-
       const yearsToRetire = Math.max(retireAge - currentAge, 0);
-      const yearsAfterRetire = Math.max(lifeAge - retireAge, 0);
+      const yearsAfterRetire = Math.max(lifeAge - retireAge, 1);
       const monthsToSave = Math.max(yearsToRetire * 12, 1);
 
       let monthlyNeed;
       if(!bMonthlyGroup.classList.contains('hidden')){
         monthlyNeed = safeNumber(bNeedPerMonth.value, 0);
-        if(monthlyNeed < 0) monthlyNeed = 0;
       }else{
         const lump = safeNumber(bLumpSumInput.value, 0);
-        monthlyNeed = yearsAfterRetire > 0 ? (lump / yearsAfterRetire) / 12 : 0;
+        monthlyNeed = (lump / yearsAfterRetire) / 12;
       }
 
       const yearlyNeed = monthlyNeed * 12;
-      // ถ้าไม่มีปีหลังเกษียณ ให้เงินก้อนเป็น 0
-      const lumpSum = yearsAfterRetire > 0 ? yearlyNeed * yearsAfterRetire : 0;
+      const lumpSum = yearlyNeed * yearsAfterRetire;
 
       let needMore = lumpSum - alreadyHave;
       if(needMore < 0) needMore = 0;
 
-      // ถ้าไม่มีเวลาออมแล้ว ให้ 0
-      const savePerMonth = monthsToSave > 0 ? (needMore / monthsToSave) : 0;
+      const savePerMonth = needMore / monthsToSave;
 
       setIfExist('bNeedLumpSum', formatMoney(lumpSum));
       setIfExist('bHaveNow', formatMoney(alreadyHave));
@@ -671,7 +814,7 @@
 
       if(scroll) el('bResult').scrollIntoView({behavior:'smooth', block:'start'});
 
-      // ส่งเข้า GAS
+      // ถ้าผ่าน validation ค่อยส่งเข้า GAS
       sendToGAS({
         mode:'basic',
         orgType:selectedOrgType,
@@ -682,6 +825,8 @@
         needPerMonth: monthlyNeed,
         currentSaving: alreadyHave
       });
+
+      return {ok:true};
     }
 
     bCalcBtn.addEventListener('click', () => {
@@ -704,62 +849,57 @@
       calcAdvance(false);
     });
 
-    // ADVANCE calc
+    // ====== คำนวณ ADV ======
+    function showZeroAdvance(scroll=true){
+      setIfExist('needLumpSum', '0 บาท');
+      setIfExist('aHaveNow', '0 บาท');
+      setIfExist('aNeedToSaveMore', '0 บาท');
+      setIfExist('savePerMonthNoInv', '0 บาท');
+      setIfExist('savePerMonthInv', '0 บาท');
+      setIfExist('futureMonthlyNeed', '0 บาท');
+      setIfExist('futureYearlyNeed', '0 บาท');
+      setIfExist('totalSpending', '0 บาท');
+      setIfExist('invCompareLabel', '—');
+      setIfExist('yearsToSaveLabel', '—');
+      if(scroll) el('aResult').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
     function calcAdvance(scroll = true){
-      let currentAge = safeNumber(aCurrentAge.value, 0);
-      let retireAge = safeNumber(aRetireAge.value, currentAge);
-      let lifeAge = safeNumber(aLifeAge.value, retireAge + 20);
-      let needNowPerMonth = safeNumber(aNeedPerMonth.value, 0);
-      let infl = safeNumber(inflation.value, 2.5);
-      let retRate = safeNumber(returnRate.value, 0);
+      const isValid = validateAdvance();
+      if(!isValid){
+        showZeroAdvance(scroll);
+        return {ok:false};
+      }
+
+      const currentAge = safeNumber(aCurrentAge.value, 0);
+      const retireAge = safeNumber(aRetireAge.value, currentAge);
+      const lifeAge = safeNumber(aLifeAge.value, retireAge + 20);
+      const needNowPerMonth = safeNumber(aNeedPerMonth.value, 0);
+      const infl = safeNumber(inflation.value, 2.5) / 100;
+      const retRate = safeNumber(returnRate.value, 0) / 100;
       const alreadyHave = safeNumber(aCurrentSaving.value, 0);
 
-      // กันอายุกลับทาง
-      if(retireAge < currentAge){
-        retireAge = currentAge;
-        aRetireAge.value = retireAge;
-      }
-      // กันอายุเกษียณมากกว่าอายุสิ้นอายุ
-      if(lifeAge < retireAge){
-        lifeAge = retireAge;
-        aLifeAge.value = lifeAge;
-      }
-
-      // clamp ตัวเลข
-      needNowPerMonth = Math.max(0, needNowPerMonth);
-      infl = clamp(infl, 0, 10);
-      retRate = clamp(retRate, 0, 20);
-
       const yearsToRetire = Math.max(retireAge - currentAge, 0);
-      const yearsAfterRetire = Math.max(lifeAge - retireAge, 0);
+      const yearsAfterRetire = Math.max(lifeAge - retireAge, 1);
 
       setIfExist('summaryRetireAge', retireAge + ' ปี');
 
-      // ถ้าไม่มีช่วงหลังเกษียณเลย ให้ทุกอย่างเป็น 0
-      let futureMonthly = 0;
-      let futureYearly = 0;
-      let lumpSum = 0;
+      const futureMonthly = needNowPerMonth * Math.pow(1 + infl, yearsToRetire);
+      const futureYearly = futureMonthly * 12;
+      const lumpSum = futureMonthly * 12 * yearsAfterRetire;
 
-      if(yearsAfterRetire > 0){
-        futureMonthly = needNowPerMonth * Math.pow(1 + (infl/100), yearsToRetire);
-        futureYearly = futureMonthly * 12;
-        lumpSum = futureYearly * yearsAfterRetire;
-      }
-
-      // เอาเงินที่มีอยู่แล้วหักออกก่อน
       let needMore = lumpSum - alreadyHave;
       if(needMore < 0) needMore = 0;
 
       const monthsToSave = Math.max(yearsToRetire * 12, 1);
-
-      const savePerMonthNoInv = monthsToSave > 0 ? (needMore / monthsToSave) : 0;
+      const savePerMonthNoInv = needMore / monthsToSave;
       const savePerYearNoInv = savePerMonthNoInv * 12;
 
       let savePerMonthInv;
-      if(retRate > 0 && monthsToSave > 0 && needMore > 0){
-        const r = (retRate/100) / 12;
+      if(retRate > 0){
+        const r = retRate / 12;
         const factor = (Math.pow(1 + r, monthsToSave) - 1) / r;
-        savePerMonthInv = factor > 0 ? (needMore / factor) : savePerMonthNoInv;
+        savePerMonthInv = needMore / factor;
       }else{
         savePerMonthInv = savePerMonthNoInv;
       }
@@ -781,7 +921,7 @@
 
       if(scroll) el('aResult').scrollIntoView({behavior:'smooth', block:'start'});
 
-      // ส่งเข้า GAS
+      // ส่งเข้า GAS เฉพาะกรณีผ่าน validation
       sendToGAS({
         mode:'advance',
         orgType:selectedOrgType,
@@ -791,9 +931,11 @@
         lifeAge,
         needPerMonth: needNowPerMonth,
         currentSaving: alreadyHave,
-        inflation: infl,
-        returnRate: retRate
+        inflation: infl * 100,
+        returnRate: retRate * 100
       });
+
+      return {ok:true};
     }
 
     aCalcBtn.addEventListener('click', () => {
@@ -818,12 +960,9 @@
     aCurrentSaving.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false); });
 
     inflation.addEventListener('input', () => {
-      // clamp ไว้ด้วย
-      inflation.value = clamp(safeNumber(inflation.value, 0), 0, 10);
       calcAdvance(false);
     });
     returnRate.addEventListener('input', () => {
-      returnRate.value = clamp(safeNumber(returnRate.value, 0), 0, 20);
       calcAdvance(false);
     });
 
@@ -862,7 +1001,7 @@
     function autoAdjustInflation(){
       const yearsToRetire = Math.max(safeNumber(aRetireAge.value, 0) - safeNumber(aCurrentAge.value, 0), 0);
       if(yearsToRetire >= 25){
-        const cur = clamp(safeNumber(inflation.value, 2.5), 0, 10);
+        const cur = safeNumber(inflation.value, 2.5);
         const adj = Math.min(cur + 0.4, 3.5);
         inflation.value = adj.toFixed(1);
       }
