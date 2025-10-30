@@ -240,11 +240,11 @@
           <div class="grid grid-cols-2 gap-3">
             <div class="space-y-2">
               <label class="text-[11px] text-slate-600">อายุที่ต้องการเกษียณ</label>
-              <input id="bRetireAge" type="number" min="40" max="80" value="60" class="input-premium" />
+              <input id="bRetireAge" type="number" min="40" max="90" value="60" class="input-premium" />
             </div>
             <div class="space-y-2">
               <label class="text-[11px] text-slate-600">คาดว่าจะมีชีวิตถึงอายุ</label>
-              <input id="bLifeAge" type="number" min="70" max="100" value="85" class="input-premium" />
+              <input id="bLifeAge" type="number" min="50" max="110" value="85" class="input-premium" />
             </div>
           </div>
 
@@ -260,7 +260,7 @@
           <!-- monthly input -->
           <div id="bMonthlyGroup" class="space-y-2">
             <label class="text-[11px] text-slate-600">เงินที่ต้องการใช้/เดือนหลังเกษียณ (มูลค่าปัจจุบัน)</label>
-            <input id="bNeedPerMonth" type="number" min="3000" step="500" value="30000" class="input-premium" />
+            <input id="bNeedPerMonth" type="number" min="0" step="500" value="30000" class="input-premium" />
           </div>
 
           <!-- current saving basic -->
@@ -273,7 +273,7 @@
           <!-- lump input -->
           <div id="bLumpGroup" class="space-y-2 hidden">
             <label class="text-[11px] text-slate-600">เงินก้อนที่อยากมีในวันเกษียณ</label>
-            <input id="bLumpSumInput" type="number" min="50000" step="10000" value="3000000" class="input-premium" />
+            <input id="bLumpSumInput" type="number" min="0" step="10000" value="3000000" class="input-premium" />
             <p class="text-[10px] text-slate-400">ระบบจะแปลงเป็นใช้ต่อปีและต่อเดือนให้</p>
           </div>
 
@@ -337,16 +337,16 @@
           <div class="grid grid-cols-2 gap-3">
             <div class="space-y-2">
               <label class="text-[11px] text-slate-600">อายุที่ต้องการเกษียณ</label>
-              <input id="aRetireAge" type="number" min="40" max="80" value="60" class="input-premium" />
+              <input id="aRetireAge" type="number" min="40" max="90" value="60" class="input-premium" />
             </div>
             <div class="space-y-2">
               <label class="text-[11px] text-slate-600">คาดว่าจะมีชีวิตถึงอายุ</label>
-              <input id="aLifeAge" type="number" min="70" max="100" value="85" class="input-premium" />
+              <input id="aLifeAge" type="number" min="50" max="110" value="85" class="input-premium" />
             </div>
           </div>
           <div class="space-y-2">
             <label class="text-[11px] text-slate-600">เงินที่ต้องการใช้/เดือนหลังเกษียณ (มูลค่าปัจจุบัน)</label>
-            <input id="aNeedPerMonth" type="number" min="3000" step="500" value="30000" class="input-premium" />
+            <input id="aNeedPerMonth" type="number" min="0" step="500" value="30000" class="input-premium" />
           </div>
           <!-- current saving advance -->
           <div class="space-y-2">
@@ -364,7 +364,7 @@
                 </button>
               </div>
               <div class="flex items-center gap-2">
-                <input id="inflation" type="number" min="0.5" max="8" step="0.1" value="2.5" class="input-premium" />
+                <input id="inflation" type="number" min="0" max="10" step="0.1" value="2.5" class="input-premium" />
                 <span class="text-[11px] text-slate-500">%</span>
               </div>
               <p class="text-[10px] text-slate-400 leading-snug">
@@ -378,7 +378,7 @@
                 <p class="text-[10px] text-slate-400">(%)</p>
               </div>
               <div class="flex items-center gap-2">
-                <input id="returnRate" type="number" min="0" max="15" step="0.1" value="6" class="input-premium" />
+                <input id="returnRate" type="number" min="0" max="20" step="0.1" value="6" class="input-premium" />
                 <span class="text-[11px] text-slate-500">%</span>
               </div>
               <p class="text-[10px] text-slate-400 leading-snug">
@@ -476,6 +476,10 @@
       const node = el(id);
       if(node) node.textContent = text;
     }
+    // clamp helper
+    function clamp(val, min, max){
+      return Math.min(Math.max(val, min), max);
+    }
 
     // ===== ORG OVERLAY =====
     const orgOverlay = el('orgOverlay');
@@ -520,7 +524,6 @@
     });
 
     consentClose.addEventListener('click', () => {
-      // ยังไม่ให้เข้า ถ้ายังไม่ยอมรับ ก็ให้อยู่หน้านี้
       consentModal.style.display = 'none';
     });
     consentAccept.addEventListener('click', () => {
@@ -619,30 +622,45 @@
     });
 
     function calcBasic(scroll = true){
-      const currentAge = safeNumber(bCurrentAge.value, 0);
-      const retireAge = safeNumber(bRetireAge.value, currentAge);
-      const lifeAge = safeNumber(bLifeAge.value, retireAge + 20);
+      let currentAge = safeNumber(bCurrentAge.value, 0);
+      let retireAge = safeNumber(bRetireAge.value, currentAge);
+      let lifeAge = safeNumber(bLifeAge.value, retireAge + 20);
       const alreadyHave = safeNumber(bCurrentSaving.value, 0);
 
+      // กันอายุกลับทาง
+      if(retireAge < currentAge){
+        retireAge = currentAge;
+        bRetireAge.value = retireAge;
+      }
+      // กันอายุเกษียณมากกว่าอายุสิ้นอายุ
+      if(lifeAge < retireAge){
+        // แสดงว่าไม่มีช่วงหลังเกษียณ
+        lifeAge = retireAge;
+        bLifeAge.value = lifeAge;
+      }
+
       const yearsToRetire = Math.max(retireAge - currentAge, 0);
-      const yearsAfterRetire = Math.max(lifeAge - retireAge, 1);
+      const yearsAfterRetire = Math.max(lifeAge - retireAge, 0);
       const monthsToSave = Math.max(yearsToRetire * 12, 1);
 
       let monthlyNeed;
       if(!bMonthlyGroup.classList.contains('hidden')){
         monthlyNeed = safeNumber(bNeedPerMonth.value, 0);
+        if(monthlyNeed < 0) monthlyNeed = 0;
       }else{
         const lump = safeNumber(bLumpSumInput.value, 0);
-        monthlyNeed = (lump / yearsAfterRetire) / 12;
+        monthlyNeed = yearsAfterRetire > 0 ? (lump / yearsAfterRetire) / 12 : 0;
       }
 
       const yearlyNeed = monthlyNeed * 12;
-      const lumpSum = yearlyNeed * yearsAfterRetire;
+      // ถ้าไม่มีปีหลังเกษียณ ให้เงินก้อนเป็น 0
+      const lumpSum = yearsAfterRetire > 0 ? yearlyNeed * yearsAfterRetire : 0;
 
       let needMore = lumpSum - alreadyHave;
       if(needMore < 0) needMore = 0;
 
-      const savePerMonth = needMore / monthsToSave;
+      // ถ้าไม่มีเวลาออมแล้ว ให้ 0
+      const savePerMonth = monthsToSave > 0 ? (needMore / monthsToSave) : 0;
 
       setIfExist('bNeedLumpSum', formatMoney(lumpSum));
       setIfExist('bHaveNow', formatMoney(alreadyHave));
@@ -688,35 +706,60 @@
 
     // ADVANCE calc
     function calcAdvance(scroll = true){
-      const currentAge = safeNumber(aCurrentAge.value, 0);
-      const retireAge = safeNumber(aRetireAge.value, currentAge);
-      const lifeAge = safeNumber(aLifeAge.value, retireAge + 20);
-      const needNowPerMonth = safeNumber(aNeedPerMonth.value, 0);
-      const infl = safeNumber(inflation.value, 2.5) / 100;
-      const retRate = safeNumber(returnRate.value, 0) / 100;
+      let currentAge = safeNumber(aCurrentAge.value, 0);
+      let retireAge = safeNumber(aRetireAge.value, currentAge);
+      let lifeAge = safeNumber(aLifeAge.value, retireAge + 20);
+      let needNowPerMonth = safeNumber(aNeedPerMonth.value, 0);
+      let infl = safeNumber(inflation.value, 2.5);
+      let retRate = safeNumber(returnRate.value, 0);
       const alreadyHave = safeNumber(aCurrentSaving.value, 0);
 
+      // กันอายุกลับทาง
+      if(retireAge < currentAge){
+        retireAge = currentAge;
+        aRetireAge.value = retireAge;
+      }
+      // กันอายุเกษียณมากกว่าอายุสิ้นอายุ
+      if(lifeAge < retireAge){
+        lifeAge = retireAge;
+        aLifeAge.value = lifeAge;
+      }
+
+      // clamp ตัวเลข
+      needNowPerMonth = Math.max(0, needNowPerMonth);
+      infl = clamp(infl, 0, 10);
+      retRate = clamp(retRate, 0, 20);
+
       const yearsToRetire = Math.max(retireAge - currentAge, 0);
-      const yearsAfterRetire = Math.max(lifeAge - retireAge, 1);
+      const yearsAfterRetire = Math.max(lifeAge - retireAge, 0);
 
       setIfExist('summaryRetireAge', retireAge + ' ปี');
 
-      const futureMonthly = needNowPerMonth * Math.pow(1 + infl, yearsToRetire);
-      const futureYearly = futureMonthly * 12;
-      const lumpSum = futureMonthly * 12 * yearsAfterRetire;
+      // ถ้าไม่มีช่วงหลังเกษียณเลย ให้ทุกอย่างเป็น 0
+      let futureMonthly = 0;
+      let futureYearly = 0;
+      let lumpSum = 0;
 
+      if(yearsAfterRetire > 0){
+        futureMonthly = needNowPerMonth * Math.pow(1 + (infl/100), yearsToRetire);
+        futureYearly = futureMonthly * 12;
+        lumpSum = futureYearly * yearsAfterRetire;
+      }
+
+      // เอาเงินที่มีอยู่แล้วหักออกก่อน
       let needMore = lumpSum - alreadyHave;
       if(needMore < 0) needMore = 0;
 
       const monthsToSave = Math.max(yearsToRetire * 12, 1);
-      const savePerMonthNoInv = needMore / monthsToSave;
+
+      const savePerMonthNoInv = monthsToSave > 0 ? (needMore / monthsToSave) : 0;
       const savePerYearNoInv = savePerMonthNoInv * 12;
 
       let savePerMonthInv;
-      if(retRate > 0){
-        const r = retRate / 12;
+      if(retRate > 0 && monthsToSave > 0 && needMore > 0){
+        const r = (retRate/100) / 12;
         const factor = (Math.pow(1 + r, monthsToSave) - 1) / r;
-        savePerMonthInv = needMore / factor;
+        savePerMonthInv = factor > 0 ? (needMore / factor) : savePerMonthNoInv;
       }else{
         savePerMonthInv = savePerMonthNoInv;
       }
@@ -748,8 +791,8 @@
         lifeAge,
         needPerMonth: needNowPerMonth,
         currentSaving: alreadyHave,
-        inflation: infl * 100,
-        returnRate: retRate * 100
+        inflation: infl,
+        returnRate: retRate
       });
     }
 
@@ -775,9 +818,12 @@
     aCurrentSaving.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false); });
 
     inflation.addEventListener('input', () => {
+      // clamp ไว้ด้วย
+      inflation.value = clamp(safeNumber(inflation.value, 0), 0, 10);
       calcAdvance(false);
     });
     returnRate.addEventListener('input', () => {
+      returnRate.value = clamp(safeNumber(returnRate.value, 0), 0, 20);
       calcAdvance(false);
     });
 
@@ -816,7 +862,7 @@
     function autoAdjustInflation(){
       const yearsToRetire = Math.max(safeNumber(aRetireAge.value, 0) - safeNumber(aCurrentAge.value, 0), 0);
       if(yearsToRetire >= 25){
-        const cur = safeNumber(inflation.value, 2.5);
+        const cur = clamp(safeNumber(inflation.value, 2.5), 0, 10);
         const adj = Math.min(cur + 0.4, 3.5);
         inflation.value = adj.toFixed(1);
       }
@@ -827,9 +873,7 @@
 
     // ===== send to GAS =====
     function sendToGAS(payload){
-      // ต้องเลือกส่วนงานก่อน
       if(!selectedOrgName){
-        // ถ้ายังไม่ได้เลือกให้เปิด overlay กลับ
         orgOverlay.style.display = 'flex';
         return;
       }
@@ -837,7 +881,6 @@
         ...payload,
         ts: new Date().toISOString()
       };
-      // ยิงแบบไม่รอผล
       try{
         fetch(GAS_URL, {
           method:'POST',
