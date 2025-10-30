@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Retirement Studio · Basic / Advance</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Kanit:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --page:#f5f6fa;
+      --surface:#ffffff;
+      --ink:#121826;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --accent:#6366f1;
+      --success:#0ea5e9;
+      --error:#ef4444;
+    }
+    body{
+      font-family:'Space Grotesk','Kanit',system-ui,-apple-system,'Segoe UI',sans-serif;
+      background:radial-gradient(circle at top, rgba(99,102,241,.04), transparent 42%), var(--page);
+      min-height:100vh;
+      color:var(--ink);
+    }
+    .app-shell{max-width:1200px;margin:0 auto;padding:1rem .9rem 3rem;display:flex;flex-direction:column;gap:1rem;}
+    .card{background:var(--surface);border:1px solid rgba(15,23,42,.025);border-radius:1.25rem;box-shadow:0 16px 38px rgba(15,23,42,.03);}
+    .input-premium{width:100%;background:#fff;border:1px solid #e2e8f0;border-radius:.9rem;padding:.55rem .75rem;font-size:.88rem;outline:none;transition:.1s;}
+    .input-premium:focus{border:1px solid rgba(99,102,241,.94);box-shadow:0 0 0 3px rgba(99,102,241,.10);}
+    .input-error{border-color:rgba(239,68,68,0.9) !important; box-shadow:0 0 0 3px rgba(239,68,68,.12) !important;}
+    .error-text{font-size:10px;color:var(--error);margin-top:3px;}
+    .btn-primary{
+      background:linear-gradient(130deg,#1f2937 0%,#111827 100%);
+      color:#fff;
+      border:none;
+      border-radius:.85rem;
+      padding:.6rem .9rem;
+      font-weight:600;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:.45rem;
+      transition:.1s;
+      box-shadow:0 12px 22px rgba(15,23,42,.12);
+      min-height:40px;
+    }
+    .btn-primary:hover{filter:brightness(1.04);transform:translateY(-1px);}
+    .btn-primary.is-loading{pointer-events:none;opacity:.85;}
+    .btn-spinner{
+      width:14px;height:14px;
+      border:2px solid rgba(255,255,255,.25);
+      border-top-color:#ffffff;
+      border-radius:9999px;
+      animation:spin .6s linear infinite;
+      display:none;
+    }
+    .btn-primary.is-loading .btn-spinner{display:inline-block;}
+    .btn-primary.is-loading .btn-text{opacity:.7;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .tabs{display:flex;gap:.4rem;background:#e2e8f0;border-radius:.9rem;padding:.25rem;}
+    .tab-btn{flex:1;text-align:center;padding:.4rem .6rem;border-radius:.7rem;font-size:.75rem;font-weight:500;color:#475569;cursor:pointer;transition:.08s;}
+    .tab-btn.active{background:#fff;box-shadow:0 8px 30px rgba(15,23,42,.05);color:#0f172a;}
+    .toggle-pill{display:flex;width:100%;background:#f3f4f6;border:1px solid #e2e8f0;border-radius:.8rem;overflow:hidden;}
+    .toggle-pill button{flex:1;padding:.45rem .5rem;font-size:.7rem;font-weight:500;color:#475569;cursor:pointer;background:transparent;transition:.08s;}
+    .toggle-pill button.active{background:#fff;color:#0f172a;box-shadow:0 4px 20px rgba(15,23,42,.05);}
+    .result-block{scroll-margin-top:90px;}
+    .mono{font-feature-settings:"tnum" 1,"lnum" 1;}
+
+    /* Overlay เลือกส่วนงาน */
+    .org-overlay{
+      position:fixed;
+      inset:0;
+      background:radial-gradient(circle at top,#020617dd,rgba(15,23,42,.2)),rgba(15,23,42,.85);
+      backdrop-filter:blur(20px);
+      z-index:999;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:1.5rem;
+    }
+    .org-card{
+      max-width:960px;
+      width:100%;
+      background:rgba(248,250,252,.04);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:1.25rem;
+      padding:1.25rem 1.25rem 1rem;
+      box-shadow:0 22px 50px rgba(0,0,0,.25);
+    }
+    .org-btn{
+      background:rgba(15,23,42,.35);
+      border:1px solid rgba(148,163,184,.25);
+      border-radius:.9rem;
+      padding:.45rem .8rem;
+      font-size:.7rem;
+      color:#e2e8f0;
+      cursor:pointer;
+      transition:.06s;
+      white-space:nowrap;
+    }
+    .org-btn:hover{background:rgba(248,250,252,.10);}
+    .org-btn.active{background:rgba(99,102,241,.95);border-color:transparent;color:#fff;}
+
+    /* Modal consent */
+    .consent-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.5);
+      backdrop-filter:blur(10px);
+      z-index:1000;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:1rem;
+    }
+    .consent-body{
+      background:#fff;
+      max-width:360px;
+      width:100%;
+      border-radius:1rem;
+      padding:1rem 1.1rem 1rem;
+      box-shadow:0 16px 35px rgba(15,23,42,.2);
+    }
+  </style>
+</head>
+<body>
+  <!-- Overlay เลือกส่วนงาน -->
+  <div id="orgOverlay" class="org-overlay">
+    <div class="org-card space-y-4">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-[10px] uppercase tracking-[.3em] text-slate-200/70 mb-1">RETIREMENT ACCESS</p>
+          <h2 class="text-lg font-semibold text-white leading-tight">เลือกส่วนงานของคุณก่อนเริ่ม</h2>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-2 bg-slate-950/20 border border-slate-50/5 rounded-xl p-2">
+        <button id="chooseBranch" class="org-btn active">สาขา</button>
+        <button id="chooseHQ" class="org-btn">สำนักงานใหญ่</button>
+      </div>
+
+      <!-- กลุ่มสาขา -->
+      <div id="branchGroup" class="space-y-2">
+        <p class="text-[10.5px] text-slate-100">เลือกภาคของสาขา</p>
+        <div class="flex flex-wrap gap-2">
+          <button class="org-btn" data-org="BW">BW</button>
+          <button class="org-btn" data-org="BK">BK</button>
+          <button class="org-btn" data-org="ES">ES</button>
+          <button class="org-btn" data-org="EN">EN</button>
+          <button class="org-btn" data-org="CE">CE</button>
+          <button class="org-btn" data-org="CN">CN</button>
+          <button class="org-btn" data-org="NO">NO</button>
+          <button class="org-btn" data-org="SO">SO</button>
+        </div>
+      </div>
+
+      <!-- กลุ่ม HQ -->
+      <div id="hqGroup" class="space-y-2 hidden">
+        <p class="text-[10.5px] text-slate-100">เลือกหน่วยงาน (สำนักงานใหญ่)</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <button class="org-btn" data-org="BDSM">BDSM</button>
+          <button class="org-btn" data-org="CLD">CLD</button>
+          <button class="org-btn" data-org="ACC">ACC</button>
+          <button class="org-btn" data-org="CRD">CRD</button>
+          <button class="org-btn" data-org="OPS">OPS</button>
+          <button class="org-btn" data-org="Risk">Risk</button>
+          <button class="org-btn" data-org="HP">HP</button>
+          <button class="org-btn" data-org="Tidlor Academy">Tidlor Academy</button>
+          <button class="org-btn" data-org="BSCS">BSCS</button>
+          <button class="org-btn" data-org="A&D">A&amp;D</button>
+          <button class="org-btn" data-org="IT">IT</button>
+          <button class="org-btn" data-org="INS-Broker">INS-Broker</button>
+          <button class="org-btn" data-org="MKT">MKT</button>
+          <button class="org-btn" data-org="Loan TLS">Loan TLS</button>
+          <button class="org-btn" data-org="Fraud">Fraud</button>
+          <button class="org-btn" data-org="INS-TLS">INS-TLS</button>
+          <button class="org-btn" data-org="Legal">Legal</button>
+          <button class="org-btn" data-org="Compliance">Compliance</button>
+          <button class="org-btn" data-org="IA">IA</button>
+        </div>
+      </div>
+
+      <p class="text-[10px] text-slate-200/50">*ระบบจะถามยืนยันการเก็บข้อมูลก่อนเสมอ</p>
+    </div>
+  </div>
+
+  <!-- Consent popup -->
+  <div id="consentModal" class="consent-backdrop">
+    <div class="consent-body space-y-3">
+      <div>
+        <h3 class="text-sm font-semibold text-slate-900">ยินยอมให้บันทึกข้อมูล</h3>
+        <p class="text-[11px] text-slate-500 leading-snug mt-1">
+          ระบบจะบันทึกชื่อส่วนงาน, หน่วยงาน และข้อมูลการคำนวณเกษียณ (อายุ, เป้าหมาย, ยอดออมต่อเดือน) เพื่อใช้ในการส่งเสริมความรู้ด้านการเงินของพนักงานเงินติดล้อในอนาคต
+        </p>
+      </div>
+      <div class="flex items-center justify-end gap-2">
+        <button id="consentClose" class="px-3 py-1.5 rounded-lg text-[11px] text-slate-500 hover:bg-slate-100">ปิด</button>
+        <button id="consentAccept" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-[11px] hover:bg-slate-800">ยอมรับและเริ่มใช้งาน</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="bg-white/70 backdrop-blur sticky top-0 z-40 border-b border-slate-100">
+    <div class="max-w-[1200px] mx-auto px-4 py-2.5 flex items-center justify-between gap-2">
+      <div>
+        <p class="text-[10px] uppercase tracking-[.2em] text-slate-400 mb-0.5">retirement studio</p>
+        <h1 class="text-base md:text-lg font-semibold tracking-tight flex items-center gap-2">
+          ตัวช่วยวางแผนเกษียณ
+        </h1>
+      </div>
+      <div class="text-right">
+        <p class="text-[11px] text-slate-400">Basic สำหรับคนทั่วไป · Advance สำหรับนักวางแผน</p>
+        <p id="orgBadge" class="text-[10px] text-slate-500"></p>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <div class="card p-3 flex flex-col gap-3">
+      <div class="tabs w-full md:w-fit">
+        <button id="tabBasic" class="tab-btn active">ทั่วไป (Basic)</button>
+        <button id="tabAdvance" class="tab-btn">มืออาชีพ (Advance)</button>
+      </div>
+
+      <!-- BASIC PANEL -->
+      <div id="panelBasic" class="flex flex-col lg:flex-row gap-4">
+        <section class="flex-1 space-y-4">
+          <div>
+            <p class="text-[11px] text-slate-500 mb-1">สำหรับผู้ใช้งานทั่วไป</p>
+            <h2 class="text-sm font-semibold tracking-tight">ใส่ข้อมูลพื้นฐาน</h2>
+            <p class="text-[11px] text-slate-400">ไม่มีเงินเฟ้อ ไม่มีผลตอบแทน คำนวณให้เร็ว</p>
+          </div>
+          <div class="space-y-2">
+            <label class="text-[11px] text-slate-600">อายุปัจจุบัน</label>
+            <input id="bCurrentAge" type="number" min="18" max="70" value="30" class="input-premium" />
+            <p id="bCurrentAgeErr" class="error-text" style="display:none"></p>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-2">
+              <label class="text-[11px] text-slate-600">อายุที่ต้องการเกษียณ</label>
+              <input id="bRetireAge" type="number" min="40" max="80" value="60" class="input-premium" />
+              <p id="bRetireAgeErr" class="error-text" style="display:none"></p>
+            </div>
+            <div class="space-y-2">
+              <label class="text-[11px] text-slate-600">คาดว่าจะมีชีวิตถึงอายุ</label>
+              <input id="bLifeAge" type="number" min="70" max="100" value="85" class="input-premium" />
+              <p id="bLifeAgeErr" class="error-text" style="display:none"></p>
+            </div>
+          </div>
+
+          <!-- toggle เงินเดือน vs เงินก้อน -->
+          <div class="space-y-2">
+            <p class="text-[11px] text-slate-600 mb-1">เลือกวิธีกรอก</p>
+            <div class="toggle-pill">
+              <button id="bModeMonthly" class="active">ฉันรู้ค่าใช้จ่าย/เดือน</button>
+              <button id="bModeLump">ฉันรู้เงินก้อนที่อยากมี</button>
+            </div>
+          </div>
+
+          <!-- monthly input -->
+          <div id="bMonthlyGroup" class="space-y-2">
+            <label class="text-[11px] text-slate-600">เงินที่ต้องการใช้/เดือนหลังเกษียณ (มูลค่าปัจจุบัน)</label>
+            <input id="bNeedPerMonth" type="number" min="3000" step="500" value="30000" class="input-premium" />
+            <p id="bNeedPerMonthErr" class="error-text" style="display:none"></p>
+          </div>
+
+          <!-- current saving basic -->
+          <div class="space-y-2">
+            <label class="text-[11px] text-slate-600">จำนวนเงินออมเพื่อเกษียณ ณ ปัจจุบัน</label>
+            <input id="bCurrentSaving" type="number" min="0" step="1000" value="0" class="input-premium" />
+          </div>
+
+          <!-- lump input -->
+          <div id="bLumpGroup" class="space-y-2 hidden">
+            <label class="text-[11px] text-slate-600">เงินก้อนที่อยากมีในวันเกษียณ</label>
+            <input id="bLumpSumInput" type="number" min="50000" step="10000" value="3000000" class="input-premium" />
+            <p id="bLumpErr" class="error-text" style="display:none"></p>
+            <p class="text-[10px] text-slate-400">ระบบจะแปลงเป็นใช้ต่อปีและต่อเดือนให้</p>
+          </div>
+
+          <div class="flex gap-2">
+            <button id="bCalcBtn" class="btn-primary flex-1">
+              <span class="btn-spinner" aria-hidden="true"></span>
+              <span class="btn-text">คำนวณเงินเกษียณ</span>
+            </button>
+            <button id="bDemoBtn" class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 hover:bg-slate-50">
+              ตัวอย่าง
+            </button>
+          </div>
+        </section>
+
+        <!-- BASIC RESULT -->
+        <section id="bResult" class="flex-1 result-block space-y-3">
+          <h3 class="text-sm font-semibold tracking-tight">ผลการคำนวณ</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+              <p class="text-[11px] text-slate-500">เงินก้อนที่ต้องมี</p>
+              <p id="bNeedLumpSum" class="text-xl font-semibold mono">–</p>
+              <p class="text-[10px] text-slate-400">คำนวณจากอายุเกษียณและอายุสิ้นอายุ</p>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+              <p class="text-[11px] text-slate-500">มีอยู่แล้วตอนนี้</p>
+              <p id="bHaveNow" class="text-xl font-semibold mono text-emerald-600">–</p>
+              <p class="text-[10px] text-slate-400">เงินออมเพื่อเกษียณ ณ ปัจจุบัน</p>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+              <p class="text-[11px] text-slate-500">ต้องเก็บเพิ่มอีก</p>
+              <p id="bNeedToSaveMore" class="text-xl font-semibold mono text-sky-600">–</p>
+              <p class="text-[10px] text-slate-400">จะเฉลี่ยต่อเดือนให้ด้านล่าง</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-100 p-3 space-y-1">
+            <p class="text-[11px] text-slate-500 mb-1">แยกเป็นรายปี / รายเดือน</p>
+            <p class="text-[11.5px] text-slate-800">
+              ต้องออม/เดือน: <span id="bSavePerMonth" class="font-semibold mono">–</span>
+            </p>
+            <p class="text-[11.5px] text-slate-800">
+              ใช้ปีละ: <span id="bFutureYearly" class="font-semibold mono">–</span>
+            </p>
+            <p id="bYearsLabel" class="text-[10px] text-slate-400 mt-1">–</p>
+            <p class="text-[10px] text-slate-400 mt-1">* Basic จะไม่คิดเงินเฟ้อและผลตอบแทน เพื่อให้เข้าใจง่าย</p>
+            <p id="bGlobalErr" class="text-[10px] text-red-500 mt-1" style="display:none"></p>
+          </div>
+        </section>
+      </div>
+
+      <!-- ADVANCE PANEL -->
+      <div id="panelAdvance" class="hidden flex flex-col lg:flex-row gap-4">
+        <section class="flex-1 space-y-4">
+          <div>
+            <p class="text-[11px] text-slate-500 mb-1">สำหรับมืออาชีพ</p>
+            <h2 class="text-sm font-semibold tracking-tight">ตั้งค่าการเงินขั้นสูง</h2>
+            <p class="text-[11px] text-slate-400">มีเงินเฟ้อ + เปรียบเทียบออมเฉยๆ กับออมแบบลงทุน</p>
+          </div>
+          <div class="space-y-2">
+            <label class="text-[11px] text-slate-600">อายุปัจจุบัน</label>
+            <input id="aCurrentAge" type="number" min="18" max="70" value="30" class="input-premium" />
+            <p id="aCurrentAgeErr" class="error-text" style="display:none"></p>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-2">
+              <label class="text-[11px] text-slate-600">อายุที่ต้องการเกษียณ</label>
+              <input id="aRetireAge" type="number" min="40" max="80" value="60" class="input-premium" />
+              <p id="aRetireAgeErr" class="error-text" style="display:none"></p>
+            </div>
+            <div class="space-y-2">
+              <label class="text-[11px] text-slate-600">คาดว่าจะมีชีวิตถึงอายุ</label>
+              <input id="aLifeAge" type="number" min="70" max="100" value="85" class="input-premium" />
+              <p id="aLifeAgeErr" class="error-text" style="display:none"></p>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label class="text-[11px] text-slate-600">เงินที่ต้องการใช้/เดือนหลังเกษียณ (มูลค่าปัจจุบัน)</label>
+            <input id="aNeedPerMonth" type="number" min="3000" step="500" value="30000" class="input-premium" />
+            <p id="aNeedPerMonthErr" class="error-text" style="display:none"></p>
+          </div>
+          <!-- current saving advance -->
+          <div class="space-y-2">
+            <label class="text-[11px] text-slate-600">จำนวนเงินออมเพื่อเกษียณ ณ ปัจจุบัน</label>
+            <input id="aCurrentSaving" type="number" min="0" step="1000" value="0" class="input-premium" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <!-- Inflation card -->
+            <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 space-y-1">
+              <div class="flex items-center justify-between gap-1">
+                <p class="text-[11px] text-slate-700">เงินเฟ้อเฉลี่ยต่อปี</p>
+                <button id="inflationSuggestBtn" type="button" class="text-[9.5px] px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">
+                  อัตราเงินเฟ้อที่แนะนำ
+                </button>
+              </div>
+              <div class="flex items-center gap-2">
+                <input id="inflation" type="number" min="0" max="8" step="0.1" value="2.5" class="input-premium" />
+                <span class="text-[11px] text-slate-500">%</span>
+              </div>
+              <p id="aInflErr" class="error-text" style="display:none"></p>
+              <p class="text-[10px] text-slate-400 leading-snug">
+                ระบบจะคูณ (1+infl/100)^ปี ที่เหลือ
+              </p>
+            </div>
+            <!-- Return card -->
+            <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 space-y-1">
+              <div class="flex items-center justify-between gap-1">
+                <p class="text-[11px] text-slate-700">ผลตอบแทนเฉลี่ยต่อปี</p>
+                <p class="text-[10px] text-slate-400">(%)</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <input id="returnRate" type="number" min="0" max="15" step="0.1" value="6" class="input-premium" />
+                <span class="text-[11px] text-slate-500">%</span>
+              </div>
+              <p id="aReturnErr" class="error-text" style="display:none"></p>
+              <p class="text-[10px] text-slate-400 leading-snug">
+                0 = ออมเฉยๆ / ไม่มีการลงทุน
+              </p>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button id="aCalcBtn" class="btn-primary flex-1">
+              <span class="btn-spinner" aria-hidden="true"></span>
+              <span class="btn-text">คำนวณแบบมืออาชีพ</span>
+            </button>
+            <button id="aDemoBtn" class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 hover:bg-slate-50">
+              ตัวอย่าง
+            </button>
+          </div>
+        </section>
+
+        <!-- ADVANCE RESULT -->
+        <section id="aResult" class="flex-1 result-block space-y-3">
+          <h3 class="text-sm font-semibold tracking-tight">ผลการคำนวณ (Advance)</h3>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+              <p class="text-[11px] text-slate-500 flex items-center gap-1">
+                เงินก้อนที่ต้องมี
+                <span id="summaryRetireAge" class="px-2 py-0.5 rounded-full bg-white border border-slate-100 text-[10px] text-slate-800">60 ปี</span>
+              </p>
+              <p id="needLumpSum" class="text-xl font-semibold mono">–</p>
+              <p class="text-[10px] text-slate-400">คิดเงินเฟ้อแล้ว</p>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+              <p class="text-[11px] text-slate-500">มีอยู่แล้วตอนนี้</p>
+              <p id="aHaveNow" class="text-xl font-semibold mono text-emerald-600">–</p>
+              <p class="text-[10px] text-slate-400">เงินออมเพื่อเกษียณ ณ ปัจจุบัน</p>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+              <p class="text-[11px] text-slate-500">ต้องเก็บเพิ่มอีก</p>
+              <p id="aNeedToSaveMore" class="text-xl font-semibold mono text-sky-600">–</p>
+              <p class="text-[10px] text-slate-400">ใช้ตัวนี้ไปเฉลี่ยออม</p>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+              <p class="text-[11px] text-slate-500">ออม/เดือน (ลงทุน)</p>
+              <p id="savePerMonthInv" class="text-xl font-semibold mono text-sky-600">–</p>
+              <p id="invCompareLabel" class="text-[10px] text-slate-400">–</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-100 p-3 space-y-1">
+            <p class="text-[11px] text-slate-500">รายละเอียด</p>
+            <p class="text-[11.5px] text-slate-800">
+              ออม/เดือน (ไม่ลงทุน): <span id="savePerMonthNoInv" class="mono font-semibold">–</span>
+            </p>
+            <p class="text-[11.5px] text-slate-800">
+              ใช้เดือนละ: <span id="futureMonthlyNeed" class="mono font-semibold">–</span>
+            </p>
+            <p class="text-[11.5px] text-slate-800">
+              ใช้ปีละ: <span id="futureYearlyNeed" class="mono font-semibold">–</span>
+            </p>
+            <p class="text-[11.5px] text-slate-800">
+              ใช้ทั้งหมด: <span id="totalSpending" class="mono font-semibold">–</span>
+            </p>
+            <p id="yearsToSaveLabel" class="text-[10px] text-slate-400">–</p>
+            <p class="text-[10px] text-slate-400">เทียบออมแบบฝาก/ไม่ลงทุน กับออมแบบลงทุนทุกเดือน</p>
+            <p id="aGlobalErr" class="text-[10px] text-red-500 mt-1" style="display:none"></p>
+          </div>
+
+          <!-- กัน JS -->
+          <div class="hidden">
+            <span id="sumSaveNoInv"></span>
+            <span id="sumSaveInv"></span>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ====== CONFIG ======
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycby7GiVi-lPcjNFixnFavRxvZ0RsKnF3FyrMyjYRwHk579JkRnt2vxSl_5_MPH8d_LQMRw/exec'; // แทนที่ด้วย URL จาก Web App ของเธอ
+
+    const el = id => document.getElementById(id);
+
+    function safeNumber(v, fallback = 0){
+      const n = parseFloat(v);
+      return isNaN(n) ? fallback : n;
+    }
+    function formatMoney(num){
+      if(isNaN(num)) return '–';
+      return new Intl.NumberFormat('th-TH',{maximumFractionDigits:0}).format(Math.round(num)) + ' บาท';
+    }
+    function formatMoney2(num){
+      if(isNaN(num)) return '–';
+      return new Intl.NumberFormat('th-TH',{maximumFractionDigits:2}).format(num) + ' บาท';
+    }
+    function setIfExist(id, text){
+      const node = el(id);
+      if(node) node.textContent = text;
+    }
+
+    // ===== ORG OVERLAY =====
+    const orgOverlay = el('orgOverlay');
+    const consentModal = el('consentModal');
+    const consentClose = el('consentClose');
+    const consentAccept = el('consentAccept');
+    const chooseBranch = el('chooseBranch');
+    const chooseHQ = el('chooseHQ');
+    const branchGroup = el('branchGroup');
+    const hqGroup = el('hqGroup');
+    const orgBadge = el('orgBadge');
+
+    let selectedOrgType = 'สาขา';
+    let selectedOrgName = '';
+
+    chooseBranch.addEventListener('click', () => {
+      selectedOrgType = 'สาขา';
+      chooseBranch.classList.add('active');
+      chooseHQ.classList.remove('active');
+      branchGroup.classList.remove('hidden');
+      hqGroup.classList.add('hidden');
+    });
+
+    chooseHQ.addEventListener('click', () => {
+      selectedOrgType = 'สำนักงานใหญ่';
+      chooseHQ.classList.add('active');
+      chooseBranch.classList.remove('active');
+      hqGroup.classList.remove('hidden');
+      branchGroup.classList.add('hidden');
+    });
+
+    [...branchGroup.querySelectorAll('.org-btn[data-org]'), ...hqGroup.querySelectorAll('.org-btn[data-org]')].forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedOrgName = btn.getAttribute('data-org');
+        [...branchGroup.querySelectorAll('.org-btn[data-org]'), ...hqGroup.querySelectorAll('.org-btn[data-org]')].forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        consentModal.style.display = 'flex';
+      });
+    });
+
+    consentClose.addEventListener('click', () => {
+      consentModal.style.display = 'none';
+    });
+    consentAccept.addEventListener('click', () => {
+      consentModal.style.display = 'none';
+      orgOverlay.style.display = 'none';
+      orgBadge.textContent = selectedOrgType + ' · ' + (selectedOrgName || '-');
+    });
+
+    // ===== Tabs =====
+    const tabBasic = el('tabBasic');
+    const tabAdvance = el('tabAdvance');
+    const panelBasic = el('panelBasic');
+    const panelAdvance = el('panelAdvance');
+
+    tabBasic.addEventListener('click', () => {
+      tabBasic.classList.add('active');
+      tabAdvance.classList.remove('active');
+      panelBasic.classList.remove('hidden');
+      panelAdvance.classList.add('hidden');
+    });
+    tabAdvance.addEventListener('click', () => {
+      tabAdvance.classList.add('active');
+      tabBasic.classList.remove('active');
+      panelAdvance.classList.remove('hidden');
+      panelBasic.classList.add('hidden');
+    });
+
+    // BASIC refs
+    const bCurrentAge = el('bCurrentAge');
+    const bRetireAge = el('bRetireAge');
+    const bLifeAge = el('bLifeAge');
+    const bNeedPerMonth = el('bNeedPerMonth');
+    const bLumpSumInput = el('bLumpSumInput');
+    const bModeMonthly = el('bModeMonthly');
+    const bModeLump = el('bModeLump');
+    const bMonthlyGroup = el('bMonthlyGroup');
+    const bLumpGroup = el('bLumpGroup');
+    const bCurrentSaving = el('bCurrentSaving');
+    const bCalcBtn = el('bCalcBtn');
+    const bDemoBtn = el('bDemoBtn');
+
+    // BASIC error refs
+    const bCurrentAgeErr = el('bCurrentAgeErr');
+    const bRetireAgeErr = el('bRetireAgeErr');
+    const bLifeAgeErr = el('bLifeAgeErr');
+    const bNeedPerMonthErr = el('bNeedPerMonthErr');
+    const bLumpErr = el('bLumpErr');
+    const bGlobalErr = el('bGlobalErr');
+
+    // ADV refs
+    const aCurrentAge = el('aCurrentAge');
+    const aRetireAge = el('aRetireAge');
+    const aLifeAge = el('aLifeAge');
+    const aNeedPerMonth = el('aNeedPerMonth');
+    const aCurrentSaving = el('aCurrentSaving');
+    const inflation = el('inflation');
+    const returnRate = el('returnRate');
+    const aCalcBtn = el('aCalcBtn');
+    const aDemoBtn = el('aDemoBtn');
+    const inflationSuggestBtn = el('inflationSuggestBtn');
+
+    // ADV error refs
+    const aCurrentAgeErr = el('aCurrentAgeErr');
+    const aRetireAgeErr = el('aRetireAgeErr');
+    const aLifeAgeErr = el('aLifeAgeErr');
+    const aNeedPerMonthErr = el('aNeedPerMonthErr');
+    const aInflErr = el('aInflErr');
+    const aReturnErr = el('aReturnErr');
+    const aGlobalErr = el('aGlobalErr');
+
+    // ===== bi-directional sync guard =====
+    let isSyncing = false;
+    function linkBasicToAdvance(){
+      if(isSyncing) return;
+      isSyncing = true;
+      aCurrentAge.value = bCurrentAge.value;
+      aRetireAge.value = bRetireAge.value;
+      aLifeAge.value = bLifeAge.value;
+      if(!bMonthlyGroup.classList.contains('hidden')){
+        aNeedPerMonth.value = bNeedPerMonth.value;
+      }
+      aCurrentSaving.value = bCurrentSaving.value;
+      isSyncing = false;
+    }
+    function linkAdvanceToBasic(){
+      if(isSyncing) return;
+      isSyncing = true;
+      bCurrentAge.value = aCurrentAge.value;
+      bRetireAge.value = aRetireAge.value;
+      bLifeAge.value = aLifeAge.value;
+      if(!bLumpGroup.classList.contains('hidden')){
+        // ถ้าอยู่โหมดเงินก้อน ไม่ overwrite
+      }else{
+        bNeedPerMonth.value = aNeedPerMonth.value;
+      }
+      bCurrentSaving.value = aCurrentSaving.value;
+      isSyncing = false;
+    }
+
+    // toggle basic input mode
+    bModeMonthly.addEventListener('click', () => {
+      bModeMonthly.classList.add('active');
+      bModeLump.classList.remove('active');
+      bMonthlyGroup.classList.remove('hidden');
+      bLumpGroup.classList.add('hidden');
+      // sync กลับไปฝั่ง advance แต่ไม่บันทึก
+      aNeedPerMonth.value = bNeedPerMonth.value;
+      calcAdvance(false, false);
+    });
+    bModeLump.addEventListener('click', () => {
+      bModeLump.classList.add('active');
+      bModeMonthly.classList.remove('active');
+      bMonthlyGroup.classList.add('hidden');
+      bLumpGroup.classList.remove('hidden');
+    });
+
+    // ========== VALIDATION ==========
+    function clearBasicErrors(){
+      [bCurrentAge, bRetireAge, bLifeAge, bNeedPerMonth, bLumpSumInput].forEach(i=>i.classList.remove('input-error'));
+      [bCurrentAgeErr, bRetireAgeErr, bLifeAgeErr, bNeedPerMonthErr, bLumpErr, bGlobalErr].forEach(e=>{e.style.display='none'; e.textContent='';});
+    }
+    function clearAdvanceErrors(){
+      [aCurrentAge, aRetireAge, aLifeAge, aNeedPerMonth, inflation, returnRate].forEach(i=>i.classList.remove('input-error'));
+      [aCurrentAgeErr, aRetireAgeErr, aLifeAgeErr, aNeedPerMonthErr, aInflErr, aReturnErr, aGlobalErr].forEach(e=>{e.style.display='none'; e.textContent='';});
+    }
+
+    function validateBasic(){
+      clearBasicErrors();
+      let ok = true;
+      const c = safeNumber(bCurrentAge.value, 0);
+      const r = safeNumber(bRetireAge.value, 0);
+      const l = safeNumber(bLifeAge.value, 0);
+
+      if(c <= 0){
+        ok = false;
+        bCurrentAge.classList.add('input-error');
+        bCurrentAgeErr.textContent = 'กรุณาใส่อายุปัจจุบันให้ถูกต้อง';
+        bCurrentAgeErr.style.display = 'block';
+      }
+      if(r < c){
+        ok = false;
+        bRetireAge.classList.add('input-error');
+        bRetireAgeErr.textContent = 'อายุเกษียณต้องมากกว่าหรือเท่ากับอายุปัจจุบัน';
+        bRetireAgeErr.style.display = 'block';
+      }
+      if(l < r){
+        ok = false;
+        bLifeAge.classList.add('input-error');
+        bLifeAgeErr.textContent = 'อายุคาดว่าจะอยู่ถึง ต้องมากกว่าหรือเท่ากับอายุเกษียณ';
+        bLifeAgeErr.style.display = 'block';
+      }
+
+      if(!bMonthlyGroup.classList.contains('hidden')){
+        const m = safeNumber(bNeedPerMonth.value, 0);
+        if(m <= 0){
+          ok = false;
+          bNeedPerMonth.classList.add('input-error');
+          bNeedPerMonthErr.textContent = 'ค่าใช้จ่ายต่อเดือนต้องมากกว่า 0';
+          bNeedPerMonthErr.style.display = 'block';
+        }
+      }else{
+        const lump = safeNumber(bLumpSumInput.value, 0);
+        if(lump <= 0){
+          ok = false;
+          bLumpSumInput.classList.add('input-error');
+          bLumpErr.textContent = 'เงินก้อนที่ต้องการต้องมากกว่า 0';
+          bLumpErr.style.display = 'block';
+        }
+      }
+
+      if(!ok){
+        bGlobalErr.textContent = 'พบข้อมูลที่กรอกไม่ถูกต้อง กรุณาแก้ไขก่อนคำนวณ';
+        bGlobalErr.style.display = 'block';
+      }
+
+      return ok;
+    }
+
+    function validateAdvance(){
+      clearAdvanceErrors();
+      let ok = true;
+      const c = safeNumber(aCurrentAge.value, 0);
+      const r = safeNumber(aRetireAge.value, 0);
+      const l = safeNumber(aLifeAge.value, 0);
+      const m = safeNumber(aNeedPerMonth.value, 0);
+      const infl = safeNumber(inflation.value, 0);
+      const ret = safeNumber(returnRate.value, 0);
+
+      if(c <= 0){
+        ok = false;
+        aCurrentAge.classList.add('input-error');
+        aCurrentAgeErr.textContent = 'กรุณาใส่อายุปัจจุบันให้ถูกต้อง';
+        aCurrentAgeErr.style.display = 'block';
+      }
+      if(r < c){
+        ok = false;
+        aRetireAge.classList.add('input-error');
+        aRetireAgeErr.textContent = 'อายุเกษียณต้องมากกว่าหรือเท่ากับอายุปัจจุบัน';
+        aRetireAgeErr.style.display = 'block';
+      }
+      if(l < r){
+        ok = false;
+        aLifeAge.classList.add('input-error');
+        aLifeAgeErr.textContent = 'อายุคาดว่าจะอยู่ถึง ต้องมากกว่าหรือเท่ากับอายุเกษียณ';
+        aLifeAgeErr.style.display = 'block';
+      }
+      if(m <= 0){
+        ok = false;
+        aNeedPerMonth.classList.add('input-error');
+        aNeedPerMonthErr.textContent = 'ค่าใช้จ่ายต่อเดือนต้องมากกว่า 0';
+        aNeedPerMonthErr.style.display = 'block';
+      }
+      if(infl < 0 || infl > 8){
+        ok = false;
+        inflation.classList.add('input-error');
+        aInflErr.textContent = 'เงินเฟ้อต้องอยู่ระหว่าง 0% – 8%';
+        aInflErr.style.display = 'block';
+      }
+      if(ret < 0 || ret > 15){
+        ok = false;
+        returnRate.classList.add('input-error');
+        aReturnErr.textContent = 'ผลตอบแทนต้องอยู่ระหว่าง 0% – 15%';
+        aReturnErr.style.display = 'block';
+      }
+
+      if(!ok){
+        aGlobalErr.textContent = 'พบข้อมูลที่กรอกไม่ถูกต้อง กรุณาแก้ไขก่อนคำนวณ';
+        aGlobalErr.style.display = 'block';
+      }
+
+      return ok;
+    }
+
+    // ====== คำนวณ BASIC ======
+    function showZeroBasic(scroll=true){
+      setIfExist('bNeedLumpSum', '0 บาท');
+      setIfExist('bHaveNow', '0 บาท');
+      setIfExist('bNeedToSaveMore', '0 บาท');
+      setIfExist('bSavePerMonth', '0 บาท');
+      setIfExist('bFutureYearly', '0 บาท');
+      setIfExist('bYearsLabel', '—');
+      if(scroll) el('bResult').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    function calcBasic(scroll = true, logToGAS = false){
+      const isValid = validateBasic();
+      if(!isValid){
+        showZeroBasic(scroll);
+        return {ok:false};
+      }
+
+      const currentAge = safeNumber(bCurrentAge.value, 0);
+      const retireAge = safeNumber(bRetireAge.value, currentAge);
+      const lifeAge = safeNumber(bLifeAge.value, retireAge + 20);
+      const alreadyHave = safeNumber(bCurrentSaving.value, 0);
+
+      const yearsToRetire = Math.max(retireAge - currentAge, 0);
+      const yearsAfterRetire = Math.max(lifeAge - retireAge, 1);
+      const monthsToSave = Math.max(yearsToRetire * 12, 1);
+
+      let monthlyNeed;
+      let inputMode;
+      if(!bMonthlyGroup.classList.contains('hidden')){
+        monthlyNeed = safeNumber(bNeedPerMonth.value, 0);
+        inputMode = 'monthly';
+      }else{
+        const lump = safeNumber(bLumpSumInput.value, 0);
+        monthlyNeed = (lump / yearsAfterRetire) / 12;
+        inputMode = 'lump';
+      }
+
+      const yearlyNeed = monthlyNeed * 12;
+      const lumpSum = yearlyNeed * yearsAfterRetire;
+
+      let needMore = lumpSum - alreadyHave;
+      if(needMore < 0) needMore = 0;
+
+      const savePerMonth = needMore / monthsToSave;
+
+      setIfExist('bNeedLumpSum', formatMoney(lumpSum));
+      setIfExist('bHaveNow', formatMoney(alreadyHave));
+      setIfExist('bNeedToSaveMore', needMore === 0 ? 'ครบตามเป้าแล้ว' : formatMoney(needMore));
+      setIfExist('bSavePerMonth', formatMoney(savePerMonth));
+      setIfExist('bYearsLabel', `ออมต่อเนื่อง ${yearsToRetire} ปี (${monthsToSave} เดือน)`);
+      setIfExist('bFutureYearly', formatMoney(yearlyNeed));
+
+      if(scroll) el('bResult').scrollIntoView({behavior:'smooth', block:'start'});
+
+      if(logToGAS){
+        sendToGAS({
+          mode:'basic',
+          inputMode, // monthly / lump
+          orgType:selectedOrgType,
+          orgName:selectedOrgName,
+          currentAge,
+          retireAge,
+          lifeAge,
+          needPerMonth: monthlyNeed,
+          currentSaving: alreadyHave,
+          needLumpSum: lumpSum,
+          needToSaveMore: needMore,
+          savePerMonth: savePerMonth,
+          yearsToRetire,
+          yearsAfterRetire
+        });
+      }
+
+      return {ok:true};
+    }
+
+    bCalcBtn.addEventListener('click', () => {
+      bCalcBtn.classList.add('is-loading');
+      calcBasic(true, true); // ✅ คำนวณ + บันทึก
+      setTimeout(() => {
+        bCalcBtn.classList.remove('is-loading');
+      }, 300);
+    });
+
+    bDemoBtn.addEventListener('click', () => {
+      bCurrentAge.value = 32;
+      bRetireAge.value = 58;
+      bLifeAge.value = 85;
+      bNeedPerMonth.value = 40000;
+      bLumpSumInput.value = 3500000;
+      bCurrentSaving.value = 250000;
+      linkBasicToAdvance();
+      calcBasic(false, false);
+      calcAdvance(false, false);
+    });
+
+    // ====== คำนวณ ADV ======
+    function showZeroAdvance(scroll=true){
+      setIfExist('needLumpSum', '0 บาท');
+      setIfExist('aHaveNow', '0 บาท');
+      setIfExist('aNeedToSaveMore', '0 บาท');
+      setIfExist('savePerMonthNoInv', '0 บาท');
+      setIfExist('savePerMonthInv', '0 บาท');
+      setIfExist('futureMonthlyNeed', '0 บาท');
+      setIfExist('futureYearlyNeed', '0 บาท');
+      setIfExist('totalSpending', '0 บาท');
+      setIfExist('invCompareLabel', '—');
+      setIfExist('yearsToSaveLabel', '—');
+      if(scroll) el('aResult').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    function calcAdvance(scroll = true, logToGAS = false){
+      const isValid = validateAdvance();
+      if(!isValid){
+        showZeroAdvance(scroll);
+        return {ok:false};
+      }
+
+      const currentAge = safeNumber(aCurrentAge.value, 0);
+      const retireAge = safeNumber(aRetireAge.value, currentAge);
+      const lifeAge = safeNumber(aLifeAge.value, retireAge + 20);
+      const needNowPerMonth = safeNumber(aNeedPerMonth.value, 0);
+      const infl = safeNumber(inflation.value, 2.5) / 100;
+      const retRate = safeNumber(returnRate.value, 0) / 100;
+      const alreadyHave = safeNumber(aCurrentSaving.value, 0);
+
+      const yearsToRetire = Math.max(retireAge - currentAge, 0);
+      const yearsAfterRetire = Math.max(lifeAge - retireAge, 1);
+
+      setIfExist('summaryRetireAge', retireAge + ' ปี');
+
+      const futureMonthly = needNowPerMonth * Math.pow(1 + infl, yearsToRetire);
+      const futureYearly = futureMonthly * 12;
+      const lumpSum = futureMonthly * 12 * yearsAfterRetire;
+
+      let needMore = lumpSum - alreadyHave;
+      if(needMore < 0) needMore = 0;
+
+      const monthsToSave = Math.max(yearsToRetire * 12, 1);
+      const savePerMonthNoInv = needMore / monthsToSave;
+      const savePerYearNoInv = savePerMonthNoInv * 12;
+
+      let savePerMonthInv;
+      if(retRate > 0){
+        const r = retRate / 12;
+        const factor = (Math.pow(1 + r, monthsToSave) - 1) / r;
+        savePerMonthInv = needMore / factor;
+      }else{
+        savePerMonthInv = savePerMonthNoInv;
+      }
+      const savePerYearInv = savePerMonthInv * 12;
+      const diffPerMonth = savePerMonthNoInv - savePerMonthInv;
+
+      setIfExist('needLumpSum', formatMoney(lumpSum));
+      setIfExist('aHaveNow', formatMoney(alreadyHave));
+      setIfExist('aNeedToSaveMore', needMore === 0 ? 'ครบตามเป้าแล้ว' : formatMoney(needMore));
+      setIfExist('savePerMonthNoInv', formatMoney(savePerMonthNoInv));
+      setIfExist('savePerMonthInv', formatMoney(savePerMonthInv));
+      setIfExist('yearsToSaveLabel', 'ออม ' + yearsToRetire + ' ปี (' + monthsToSave + ' เดือน)');
+      setIfExist('invCompareLabel', diffPerMonth > 0 ? 'ประหยัดได้ ' + formatMoney(diffPerMonth) + '/เดือน' : 'ผลตอบแทนยังไม่ช่วยมาก');
+      setIfExist('futureMonthlyNeed', formatMoney2(futureMonthly));
+      setIfExist('futureYearlyNeed', formatMoney(futureYearly));
+      setIfExist('totalSpending', formatMoney(lumpSum));
+      setIfExist('sumSaveNoInv', formatMoney(savePerYearNoInv));
+      setIfExist('sumSaveInv', formatMoney(savePerYearInv));
+
+      if(scroll) el('aResult').scrollIntoView({behavior:'smooth', block:'start'});
+
+      if(logToGAS){
+        sendToGAS({
+          mode:'advance',
+          orgType:selectedOrgType,
+          orgName:selectedOrgName,
+          currentAge,
+          retireAge,
+          lifeAge,
+          needPerMonth: needNowPerMonth,
+          currentSaving: alreadyHave,
+          inflation: infl * 100,
+          returnRate: retRate * 100,
+          needLumpSum: lumpSum,
+          needToSaveMore: needMore,
+          savePerMonthNoInv: savePerMonthNoInv,
+          savePerMonthInv: savePerMonthInv,
+          diffPerMonth: diffPerMonth,
+          yearsToRetire,
+          yearsAfterRetire
+        });
+      }
+
+      return {ok:true};
+    }
+
+    aCalcBtn.addEventListener('click', () => {
+      aCalcBtn.classList.add('is-loading');
+      calcAdvance(true, true); // ✅ คำนวณ + บันทึก
+      setTimeout(() => {
+        aCalcBtn.classList.remove('is-loading');
+      }, 320);
+    });
+
+    // ====== SYNC input listeners (ไม่มีการ log) ======
+    bCurrentAge.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false, false); });
+    bRetireAge.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false, false); });
+    bLifeAge.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false, false); });
+    bNeedPerMonth.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false, false); });
+    bCurrentSaving.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false, false); });
+
+    aCurrentAge.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false, false); });
+    aRetireAge.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false, false); });
+    aLifeAge.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false, false); });
+    aNeedPerMonth.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false, false); });
+    aCurrentSaving.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false, false); });
+
+    inflation.addEventListener('input', () => {
+      calcAdvance(false, false);
+    });
+    returnRate.addEventListener('input', () => {
+      calcAdvance(false, false);
+    });
+
+    // ปุ่มอัตราเงินเฟ้อที่แนะนำ
+    inflationSuggestBtn.addEventListener('click', () => {
+      const curAge = safeNumber(aCurrentAge.value, 0);
+      const retAge = safeNumber(aRetireAge.value, curAge);
+      const years = Math.max(retAge - curAge, 0);
+      let suggested;
+      if(years < 10){
+        suggested = 2.2;
+      } else if (years < 20){
+        suggested = 2.5;
+      } else if (years < 30){
+        suggested = 2.8;
+      } else {
+        suggested = 3.2;
+      }
+      inflation.value = suggested.toFixed(1);
+      calcAdvance(false, false);
+    });
+
+    aDemoBtn.addEventListener('click', () => {
+      aCurrentAge.value = 35;
+      aRetireAge.value = 60;
+      aLifeAge.value = 88;
+      aNeedPerMonth.value = 45000;
+      aCurrentSaving.value = 500000;
+      inflation.value = 2.7;
+      returnRate.value = 6.5;
+      linkAdvanceToBasic();
+      calcAdvance(false, false);
+      calcBasic(false, false);
+    });
+
+    function autoAdjustInflation(){
+      const yearsToRetire = Math.max(safeNumber(aRetireAge.value, 0) - safeNumber(aCurrentAge.value, 0), 0);
+      if(yearsToRetire >= 25){
+        const cur = safeNumber(inflation.value, 2.5);
+        const adj = Math.min(cur + 0.4, 3.5);
+        inflation.value = adj.toFixed(1);
+      }
+      calcAdvance(false, false);
+    }
+    aCurrentAge.addEventListener('change', autoAdjustInflation);
+    aRetireAge.addEventListener('change', autoAdjustInflation);
+
+    // ===== send to GAS =====
+    function sendToGAS(payload){
+      if(!selectedOrgName){
+        // ถ้ายังไม่ได้เลือกหน่วยงาน ให้โชว์ overlay อีกครั้ง แต่ไม่บันทึก
+        orgOverlay.style.display = 'flex';
+        return;
+      }
+      const data = {
+        ...payload,
+        ts: new Date().toISOString()
+      };
+      try{
+        const fd = new FormData();
+        Object.keys(data).forEach(k => fd.append(k, data[k]));
+        fetch(GAS_URL, {
+          method:'POST',
+          body: fd,
+          mode: 'no-cors'
+        }).catch(()=>{});
+      }catch(e){}
+    }
+
+    // first run แบบไม่ log
+    calcBasic(false, false);
+    calcAdvance(false, false);
+  </script>
+</body>
+</html>
