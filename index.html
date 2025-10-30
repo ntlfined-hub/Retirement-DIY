@@ -65,9 +65,142 @@
     .toggle-pill button.active{background:#fff;color:#0f172a;box-shadow:0 4px 20px rgba(15,23,42,.05);}
     .result-block{scroll-margin-top:90px;}
     .mono{font-feature-settings:"tnum" 1,"lnum" 1;}
+
+    /* Overlay เลือกส่วนงาน */
+    .org-overlay{
+      position:fixed;
+      inset:0;
+      background:radial-gradient(circle at top,#020617dd,rgba(15,23,42,.2)),rgba(15,23,42,.85);
+      backdrop-filter:blur(20px);
+      z-index:999;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:1.5rem;
+    }
+    .org-card{
+      max-width:960px;
+      width:100%;
+      background:rgba(248,250,252,.04);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:1.25rem;
+      padding:1.25rem 1.25rem 1rem;
+      box-shadow:0 22px 50px rgba(0,0,0,.25);
+    }
+    .org-btn{
+      background:rgba(15,23,42,.35);
+      border:1px solid rgba(148,163,184,.25);
+      border-radius:.9rem;
+      padding:.45rem .8rem;
+      font-size:.7rem;
+      color:#e2e8f0;
+      cursor:pointer;
+      transition:.06s;
+      white-space:nowrap;
+    }
+    .org-btn:hover{background:rgba(248,250,252,.10);}
+    .org-btn.active{background:rgba(99,102,241,.95);border-color:transparent;color:#fff;}
+
+    /* Modal consent */
+    .consent-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.5);
+      backdrop-filter:blur(10px);
+      z-index:1000;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:1rem;
+    }
+    .consent-body{
+      background:#fff;
+      max-width:360px;
+      width:100%;
+      border-radius:1rem;
+      padding:1rem 1.1rem 1rem;
+      box-shadow:0 16px 35px rgba(15,23,42,.2);
+    }
   </style>
 </head>
 <body>
+  <!-- Overlay เลือกส่วนงาน -->
+  <div id="orgOverlay" class="org-overlay">
+    <div class="org-card space-y-4">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-[10px] uppercase tracking-[.3em] text-slate-200/70 mb-1">RETIREMENT ACCESS</p>
+          <h2 class="text-lg font-semibold text-white leading-tight">เลือกส่วนงานของคุณก่อนเริ่ม</h2>
+          <p class="text-[11px] text-slate-200/70">เพื่อให้แบบฟอร์มเก็บข้อมูลส่งเข้า Google Sheet ได้ตรงหน่วยงาน</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-2 bg-slate-950/20 border border-slate-50/5 rounded-xl p-2">
+        <button id="chooseBranch" class="org-btn active">สาขา</button>
+        <button id="chooseHQ" class="org-btn">สำนักงานใหญ่</button>
+      </div>
+
+      <!-- กลุ่มสาขา -->
+      <div id="branchGroup" class="space-y-2">
+        <p class="text-[10.5px] text-slate-100">เลือกภาคของสาขา</p>
+        <div class="flex flex-wrap gap-2">
+          <button class="org-btn" data-org="BW">BW</button>
+          <button class="org-btn" data-org="BK">BK</button>
+          <button class="org-btn" data-org="ES">ES</button>
+          <button class="org-btn" data-org="EN">EN</button>
+          <button class="org-btn" data-org="CE">CE</button>
+          <button class="org-btn" data-org="CN">CN</button>
+          <button class="org-btn" data-org="NO">NO</button>
+          <button class="org-btn" data-org="SO">SO</button>
+        </div>
+      </div>
+
+      <!-- กลุ่ม HQ -->
+      <div id="hqGroup" class="space-y-2 hidden">
+        <p class="text-[10.5px] text-slate-100">เลือกหน่วยงาน (สำนักงานใหญ่)</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <button class="org-btn" data-org="BDSM">BDSM</button>
+          <button class="org-btn" data-org="CLD">CLD</button>
+          <button class="org-btn" data-org="ACC">ACC</button>
+          <button class="org-btn" data-org="CRD">CRD</button>
+          <button class="org-btn" data-org="OPS">OPS</button>
+          <button class="org-btn" data-org="Risk">Risk</button>
+          <button class="org-btn" data-org="HP">HP</button>
+          <button class="org-btn" data-org="Tidlor Academy">Tidlor Academy</button>
+          <button class="org-btn" data-org="BSCS">BSCS</button>
+          <button class="org-btn" data-org="A&D">A&amp;D</button>
+          <button class="org-btn" data-org="IT">IT</button>
+          <button class="org-btn" data-org="INS-Broker">INS-Broker</button>
+          <button class="org-btn" data-org="MKT">MKT</button>
+          <button class="org-btn" data-org="Loan TLS">Loan TLS</button>
+          <button class="org-btn" data-org="Fraud">Fraud</button>
+          <button class="org-btn" data-org="INS-TLS">INS-TLS</button>
+          <button class="org-btn" data-org="Legal">Legal</button>
+          <button class="org-btn" data-org="Compliance">Compliance</button>
+          <button class="org-btn" data-org="IA">IA</button>
+        </div>
+      </div>
+
+      <p class="text-[10px] text-slate-200/50">*ระบบจะถามยืนยันการเก็บข้อมูลก่อนเสมอ</p>
+    </div>
+  </div>
+
+  <!-- Consent popup -->
+  <div id="consentModal" class="consent-backdrop">
+    <div class="consent-body space-y-3">
+      <div>
+        <h3 class="text-sm font-semibold text-slate-900">ยินยอมให้บันทึกข้อมูล</h3>
+        <p class="text-[11px] text-slate-500 leading-snug mt-1">
+          ระบบจะบันทึกชื่อส่วนงาน, หน่วยงาน และข้อมูลการคำนวณเกษียณ (อายุ, เป้าหมาย, ยอดออมต่อเดือน) ลงใน Google Sheet เพื่อใช้ในงานพัฒนาการเงินของพนักงาน
+        </p>
+      </div>
+      <div class="flex items-center justify-end gap-2">
+        <button id="consentClose" class="px-3 py-1.5 rounded-lg text-[11px] text-slate-500 hover:bg-slate-100">ปิด</button>
+        <button id="consentAccept" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-[11px] hover:bg-slate-800">ยอมรับและเริ่มใช้งาน</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Header -->
   <header class="bg-white/70 backdrop-blur sticky top-0 z-40 border-b border-slate-100">
     <div class="max-w-[1200px] mx-auto px-4 py-2.5 flex items-center justify-between gap-2">
@@ -78,7 +211,10 @@
           <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] border border-emerald-100">beta</span>
         </h1>
       </div>
-      <p class="text-[11px] text-slate-400">Basic สำหรับคนทั่วไป · Advance สำหรับนักวางแผน</p>
+      <div class="text-right">
+        <p class="text-[11px] text-slate-400">Basic สำหรับคนทั่วไป · Advance สำหรับนักวางแผน</p>
+        <p id="orgBadge" class="text-[10px] text-slate-500"></p>
+      </div>
     </div>
   </header>
 
@@ -319,6 +455,9 @@
   </main>
 
   <script>
+    // ====== CONFIG ======
+    const GAS_URL = 'https://script.google.com/macros/s/YOUR_GAS_URL/exec';
+
     const el = id => document.getElementById(id);
 
     function safeNumber(v, fallback = 0){
@@ -338,7 +477,59 @@
       if(node) node.textContent = text;
     }
 
-    // Tabs
+    // ===== ORG OVERLAY =====
+    const orgOverlay = el('orgOverlay');
+    const consentModal = el('consentModal');
+    const consentClose = el('consentClose');
+    const consentAccept = el('consentAccept');
+    const chooseBranch = el('chooseBranch');
+    const chooseHQ = el('chooseHQ');
+    const branchGroup = el('branchGroup');
+    const hqGroup = el('hqGroup');
+    const orgBadge = el('orgBadge');
+
+    let selectedOrgType = 'สาขา';
+    let selectedOrgName = '';
+
+    chooseBranch.addEventListener('click', () => {
+      selectedOrgType = 'สาขา';
+      chooseBranch.classList.add('active');
+      chooseHQ.classList.remove('active');
+      branchGroup.classList.remove('hidden');
+      hqGroup.classList.add('hidden');
+    });
+
+    chooseHQ.addEventListener('click', () => {
+      selectedOrgType = 'สำนักงานใหญ่';
+      chooseHQ.classList.add('active');
+      chooseBranch.classList.remove('active');
+      hqGroup.classList.remove('hidden');
+      branchGroup.classList.add('hidden');
+    });
+
+    // คลิกเลือก org (ทั้ง branch และ hq)
+    [...branchGroup.querySelectorAll('.org-btn[data-org]'), ...hqGroup.querySelectorAll('.org-btn[data-org]')].forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedOrgName = btn.getAttribute('data-org');
+        // clear active เดิม
+        [...branchGroup.querySelectorAll('.org-btn[data-org]'), ...hqGroup.querySelectorAll('.org-btn[data-org]')].forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        // โชว์ consent
+        consentModal.style.display = 'flex';
+      });
+    });
+
+    consentClose.addEventListener('click', () => {
+      // ยังไม่ให้เข้า ถ้ายังไม่ยอมรับ ก็ให้อยู่หน้านี้
+      consentModal.style.display = 'none';
+    });
+    consentAccept.addEventListener('click', () => {
+      consentModal.style.display = 'none';
+      orgOverlay.style.display = 'none';
+      orgBadge.textContent = selectedOrgType + ' · ' + (selectedOrgName || '-');
+    });
+
+    // ===== Tabs =====
     const tabBasic = el('tabBasic');
     const tabAdvance = el('tabAdvance');
     const panelBasic = el('panelBasic');
@@ -394,7 +585,6 @@
       if(!bMonthlyGroup.classList.contains('hidden')){
         aNeedPerMonth.value = bNeedPerMonth.value;
       }
-      // ซิงก์เงินออมปัจจุบันด้วย
       aCurrentSaving.value = bCurrentSaving.value;
       isSyncing = false;
     }
@@ -405,11 +595,10 @@
       bRetireAge.value = aRetireAge.value;
       bLifeAge.value = aLifeAge.value;
       if(!bLumpGroup.classList.contains('hidden')){
-        // โหมดเงินก้อน ไม่เขียนทับ
+        // skip
       }else{
         bNeedPerMonth.value = aNeedPerMonth.value;
       }
-      // ซิงก์เงินออมปัจจุบันด้วย
       bCurrentSaving.value = aCurrentSaving.value;
       isSyncing = false;
     }
@@ -420,7 +609,6 @@
       bModeLump.classList.remove('active');
       bMonthlyGroup.classList.remove('hidden');
       bLumpGroup.classList.add('hidden');
-      // กลับมาโหมดเดือนให้ sync มาจาก advance อีกรอบ
       bNeedPerMonth.value = aNeedPerMonth.value;
     });
     bModeLump.addEventListener('click', () => {
@@ -464,6 +652,18 @@
       setIfExist('bFutureYearly', formatMoney(yearlyNeed));
 
       if(scroll) el('bResult').scrollIntoView({behavior:'smooth', block:'start'});
+
+      // ส่งเข้า GAS
+      sendToGAS({
+        mode:'basic',
+        orgType:selectedOrgType,
+        orgName:selectedOrgName,
+        currentAge,
+        retireAge,
+        lifeAge,
+        needPerMonth: monthlyNeed,
+        currentSaving: alreadyHave
+      });
     }
 
     bCalcBtn.addEventListener('click', () => {
@@ -501,12 +701,10 @@
 
       setIfExist('summaryRetireAge', retireAge + ' ปี');
 
-      // ค่าใช้จ่ายในอนาคต
       const futureMonthly = needNowPerMonth * Math.pow(1 + infl, yearsToRetire);
       const futureYearly = futureMonthly * 12;
       const lumpSum = futureMonthly * 12 * yearsAfterRetire;
 
-      // เอาเงินที่มีอยู่แล้วหักออกก่อน
       let needMore = lumpSum - alreadyHave;
       if(needMore < 0) needMore = 0;
 
@@ -539,6 +737,20 @@
       setIfExist('sumSaveInv', formatMoney(savePerYearInv));
 
       if(scroll) el('aResult').scrollIntoView({behavior:'smooth', block:'start'});
+
+      // ส่งเข้า GAS
+      sendToGAS({
+        mode:'advance',
+        orgType:selectedOrgType,
+        orgName:selectedOrgName,
+        currentAge,
+        retireAge,
+        lifeAge,
+        needPerMonth: needNowPerMonth,
+        currentSaving: alreadyHave,
+        inflation: infl * 100,
+        returnRate: retRate * 100
+      });
     }
 
     aCalcBtn.addEventListener('click', () => {
@@ -562,7 +774,6 @@
     aNeedPerMonth.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false); });
     aCurrentSaving.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false); });
 
-    // inflation / return (number)
     inflation.addEventListener('input', () => {
       calcAdvance(false);
     });
@@ -613,6 +824,28 @@
     }
     aCurrentAge.addEventListener('change', autoAdjustInflation);
     aRetireAge.addEventListener('change', autoAdjustInflation);
+
+    // ===== send to GAS =====
+    function sendToGAS(payload){
+      // ต้องเลือกส่วนงานก่อน
+      if(!selectedOrgName){
+        // ถ้ายังไม่ได้เลือกให้เปิด overlay กลับ
+        orgOverlay.style.display = 'flex';
+        return;
+      }
+      const data = {
+        ...payload,
+        ts: new Date().toISOString()
+      };
+      // ยิงแบบไม่รอผล
+      try{
+        fetch(GAS_URL, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(data)
+        }).catch(()=>{});
+      }catch(e){}
+    }
 
     // first run
     calcBasic(false);
