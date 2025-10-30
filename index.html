@@ -194,7 +194,7 @@
       <div>
         <h3 class="text-sm font-semibold text-slate-900">ยินยอมให้บันทึกข้อมูล</h3>
         <p class="text-[11px] text-slate-500 leading-snug mt-1">
-          ระบบจะบันทึกชื่อส่วนงาน, หน่วยงาน และข้อมูลการคำนวณเกษียณ ลงใน Google Sheet
+          ระบบจะบันทึกชื่อส่วนงาน, หน่วยงาน และข้อมูลการคำนวณเกษียณ (อายุ, เป้าหมาย, ยอดออมต่อเดือน) เพื่อใช้ในการส่งเสริมความรู้ด้านการเงินของพนักงานเงินติดล้อในอนาคต
         </p>
       </div>
       <div class="flex items-center justify-end gap-2">
@@ -470,7 +470,7 @@
 
   <script>
     // ====== CONFIG ======
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycby7GiVi-lPcjNFixnFavRxvZ0RsKnF3FyrMyjYRwHk579JkRnt2vxSl_5_MPH8d_LQMRw/exec'; // แทนที่ด้วย URL จาก Web App ของเธอ
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycby7GiVi-lPcjNFixnFavRxvZ0RsKnF3FyrMyjYRwHk579JkRnt2vxSl_5_MPH8d_LQMRw/exec';
 
     const el = id => document.getElementById(id);
 
@@ -622,7 +622,7 @@
       bRetireAge.value = aRetireAge.value;
       bLifeAge.value = aLifeAge.value;
       if(!bLumpGroup.classList.contains('hidden')){
-        // ถ้าอยู่โหมดเงินก้อน ไม่ overwrite
+        // skip ถ้าอยู่โหมดเงินก้อน
       }else{
         bNeedPerMonth.value = aNeedPerMonth.value;
       }
@@ -636,9 +636,7 @@
       bModeLump.classList.remove('active');
       bMonthlyGroup.classList.remove('hidden');
       bLumpGroup.classList.add('hidden');
-      // sync กลับไปฝั่ง advance แต่ไม่บันทึก
-      aNeedPerMonth.value = bNeedPerMonth.value;
-      calcAdvance(false, false);
+      bNeedPerMonth.value = aNeedPerMonth.value;
     });
     bModeLump.addEventListener('click', () => {
       bModeLump.classList.add('active');
@@ -775,7 +773,7 @@
       if(scroll) el('bResult').scrollIntoView({behavior:'smooth', block:'start'});
     }
 
-    function calcBasic(scroll = true, logToGAS = false){
+    function calcBasic(scroll = true){
       const isValid = validateBasic();
       if(!isValid){
         showZeroBasic(scroll);
@@ -792,14 +790,11 @@
       const monthsToSave = Math.max(yearsToRetire * 12, 1);
 
       let monthlyNeed;
-      let inputMode;
       if(!bMonthlyGroup.classList.contains('hidden')){
         monthlyNeed = safeNumber(bNeedPerMonth.value, 0);
-        inputMode = 'monthly';
       }else{
         const lump = safeNumber(bLumpSumInput.value, 0);
         monthlyNeed = (lump / yearsAfterRetire) / 12;
-        inputMode = 'lump';
       }
 
       const yearlyNeed = monthlyNeed * 12;
@@ -819,31 +814,24 @@
 
       if(scroll) el('bResult').scrollIntoView({behavior:'smooth', block:'start'});
 
-      if(logToGAS){
-        sendToGAS({
-          mode:'basic',
-          inputMode, // monthly / lump
-          orgType:selectedOrgType,
-          orgName:selectedOrgName,
-          currentAge,
-          retireAge,
-          lifeAge,
-          needPerMonth: monthlyNeed,
-          currentSaving: alreadyHave,
-          needLumpSum: lumpSum,
-          needToSaveMore: needMore,
-          savePerMonth: savePerMonth,
-          yearsToRetire,
-          yearsAfterRetire
-        });
-      }
+      // ส่งเข้า GAS (ผ่าน CORS แบบ no-cors)
+      sendToGAS({
+        mode:'basic',
+        orgType:selectedOrgType,
+        orgName:selectedOrgName,
+        currentAge,
+        retireAge,
+        lifeAge,
+        needPerMonth: monthlyNeed,
+        currentSaving: alreadyHave
+      });
 
       return {ok:true};
     }
 
     bCalcBtn.addEventListener('click', () => {
       bCalcBtn.classList.add('is-loading');
-      calcBasic(true, true); // ✅ คำนวณ + บันทึก
+      calcBasic();
       setTimeout(() => {
         bCalcBtn.classList.remove('is-loading');
       }, 300);
@@ -857,8 +845,8 @@
       bLumpSumInput.value = 3500000;
       bCurrentSaving.value = 250000;
       linkBasicToAdvance();
-      calcBasic(false, false);
-      calcAdvance(false, false);
+      calcBasic(false);
+      calcAdvance(false);
     });
 
     // ====== คำนวณ ADV ======
@@ -876,7 +864,7 @@
       if(scroll) el('aResult').scrollIntoView({behavior:'smooth', block:'start'});
     }
 
-    function calcAdvance(scroll = true, logToGAS = false){
+    function calcAdvance(scroll = true){
       const isValid = validateAdvance();
       if(!isValid){
         showZeroAdvance(scroll);
@@ -933,57 +921,49 @@
 
       if(scroll) el('aResult').scrollIntoView({behavior:'smooth', block:'start'});
 
-      if(logToGAS){
-        sendToGAS({
-          mode:'advance',
-          orgType:selectedOrgType,
-          orgName:selectedOrgName,
-          currentAge,
-          retireAge,
-          lifeAge,
-          needPerMonth: needNowPerMonth,
-          currentSaving: alreadyHave,
-          inflation: infl * 100,
-          returnRate: retRate * 100,
-          needLumpSum: lumpSum,
-          needToSaveMore: needMore,
-          savePerMonthNoInv: savePerMonthNoInv,
-          savePerMonthInv: savePerMonthInv,
-          diffPerMonth: diffPerMonth,
-          yearsToRetire,
-          yearsAfterRetire
-        });
-      }
+      // ส่งเข้า GAS (ผ่าน CORS แบบ no-cors)
+      sendToGAS({
+        mode:'advance',
+        orgType:selectedOrgType,
+        orgName:selectedOrgName,
+        currentAge,
+        retireAge,
+        lifeAge,
+        needPerMonth: needNowPerMonth,
+        currentSaving: alreadyHave,
+        inflation: infl * 100,
+        returnRate: retRate * 100
+      });
 
       return {ok:true};
     }
 
     aCalcBtn.addEventListener('click', () => {
       aCalcBtn.classList.add('is-loading');
-      calcAdvance(true, true); // ✅ คำนวณ + บันทึก
+      calcAdvance();
       setTimeout(() => {
         aCalcBtn.classList.remove('is-loading');
       }, 320);
     });
 
-    // ====== SYNC input listeners (ไม่มีการ log) ======
-    bCurrentAge.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false, false); });
-    bRetireAge.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false, false); });
-    bLifeAge.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false, false); });
-    bNeedPerMonth.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false, false); });
-    bCurrentSaving.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false, false); });
+    // ====== SYNC input listeners ======
+    bCurrentAge.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false); });
+    bRetireAge.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false); });
+    bLifeAge.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false); });
+    bNeedPerMonth.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false); });
+    bCurrentSaving.addEventListener('input', () => { linkBasicToAdvance(); calcAdvance(false); });
 
-    aCurrentAge.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false, false); });
-    aRetireAge.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false, false); });
-    aLifeAge.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false, false); });
-    aNeedPerMonth.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false, false); });
-    aCurrentSaving.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false, false); });
+    aCurrentAge.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false); });
+    aRetireAge.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false); });
+    aLifeAge.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false); });
+    aNeedPerMonth.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false); });
+    aCurrentSaving.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false); });
 
     inflation.addEventListener('input', () => {
-      calcAdvance(false, false);
+      calcAdvance(false);
     });
     returnRate.addEventListener('input', () => {
-      calcAdvance(false, false);
+      calcAdvance(false);
     });
 
     // ปุ่มอัตราเงินเฟ้อที่แนะนำ
@@ -1002,7 +982,7 @@
         suggested = 3.2;
       }
       inflation.value = suggested.toFixed(1);
-      calcAdvance(false, false);
+      calcAdvance(false);
     });
 
     aDemoBtn.addEventListener('click', () => {
@@ -1014,8 +994,8 @@
       inflation.value = 2.7;
       returnRate.value = 6.5;
       linkAdvanceToBasic();
-      calcAdvance(false, false);
-      calcBasic(false, false);
+      calcAdvance(false);
+      calcBasic(false);
     });
 
     function autoAdjustInflation(){
@@ -1025,15 +1005,15 @@
         const adj = Math.min(cur + 0.4, 3.5);
         inflation.value = adj.toFixed(1);
       }
-      calcAdvance(false, false);
+      calcAdvance(false);
     }
     aCurrentAge.addEventListener('change', autoAdjustInflation);
     aRetireAge.addEventListener('change', autoAdjustInflation);
 
-    // ===== send to GAS =====
+    // ===== send to GAS (no-cors + FormData) =====
     function sendToGAS(payload){
+      // ยังไม่เลือกหน่วยงาน → ให้เลือกก่อน
       if(!selectedOrgName){
-        // ถ้ายังไม่ได้เลือกหน่วยงาน ให้โชว์ overlay อีกครั้ง แต่ไม่บันทึก
         orgOverlay.style.display = 'flex';
         return;
       }
@@ -1041,20 +1021,26 @@
         ...payload,
         ts: new Date().toISOString()
       };
-      try{
-        const fd = new FormData();
-        Object.keys(data).forEach(k => fd.append(k, data[k]));
+
+      const fd = new FormData();
+      Object.keys(data).forEach(key => {
+        fd.append(key, typeof data[key] === 'number' ? String(data[key]) : data[key]);
+      });
+
+      try {
         fetch(GAS_URL, {
-          method:'POST',
-          body: fd,
-          mode: 'no-cors'
-        }).catch(()=>{});
-      }catch(e){}
+          method: 'POST',
+          mode: 'no-cors',
+          body: fd
+        }).catch(() => {});
+      } catch (e) {
+        // เงียบไป ไม่ต้องให้ user เห็น
+      }
     }
 
-    // first run แบบไม่ log
-    calcBasic(false, false);
-    calcAdvance(false, false);
+    // first run
+    calcBasic(false);
+    calcAdvance(false);
   </script>
 </body>
 </html>
