@@ -34,95 +34,44 @@
     .error-text{font-size:10px;color:var(--error);margin-top:3px;}
     .btn-primary{
       background:linear-gradient(130deg,#1f2937 0%,#111827 100%);
-      color:#fff;
-      border:none;
-      border-radius:.85rem;
-      padding:.6rem .9rem;
-      font-weight:600;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:.45rem;
-      transition:.1s;
-      box-shadow:0 12px 22px rgba(15,23,42,.12);
-      min-height:40px;
+      color:#fff;border:none;border-radius:.85rem;padding:.6rem .9rem;font-weight:600;
+      display:flex;align-items:center;justify-content:center;gap:.45rem;transition:.1s;
+      box-shadow:0 12px 22px rgba(15,23,42,.12);min-height:40px;
     }
     .btn-primary:hover{filter:brightness(1.04);transform:translateY(-1px);}
     .btn-primary.is-loading{pointer-events:none;opacity:.85;}
-    .btn-spinner{
-      width:14px;height:14px;
-      border:2px solid rgba(255,255,255,.25);
-      border-top-color:#ffffff;
-      border-radius:9999px;
-      animation:spin .6s linear infinite;
-      display:none;
-    }
+    .btn-spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.25);border-top-color:#ffffff;border-radius:9999px;animation:spin .6s linear infinite;display:none;}
     .btn-primary.is-loading .btn-spinner{display:inline-block;}
     .btn-primary.is-loading .btn-text{opacity:.7;}
     @keyframes spin{to{transform:rotate(360deg);}}
     .tabs{display:flex;gap:.4rem;background:#e2e8f0;border-radius:.9rem;padding:.25rem;}
     .tab-btn{flex:1;text-align:center;padding:.4rem .6rem;border-radius:.7rem;font-size:.75rem;font-weight:500;color:#475569;cursor:pointer;transition:.08s;}
     .tab-btn.active{background:#fff;box-shadow:0 8px 30px rgba(15,23,42,.05);color:#0f172a;}
-    .toggle-pill{display:flex;width:100%;background:#f3f4f6;border:1px solid #e2e8f0;border-radius:.8rem;overflow:hidden;}
-    .toggle-pill button{flex:1;padding:.45rem .5rem;font-size:.7rem;font-weight:500;color:#475569;cursor:pointer;background:transparent;transition:.08s;}
-    .toggle-pill button.active{background:#fff;color:#0f172a;box-shadow:0 4px 20px rgba(15,23,42,.05);}
     .result-block{scroll-margin-top:90px;}
     .mono{font-feature-settings:"tnum" 1,"lnum" 1;}
 
     /* Overlay เลือกส่วนงาน */
     .org-overlay{
-      position:fixed;
-      inset:0;
-      background:radial-gradient(circle at top,#020617dd,rgba(15,23,42,.2)),rgba(15,23,42,.85);
-      backdrop-filter:blur(20px);
-      z-index:999;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:1.5rem;
+      position:fixed;inset:0;background:radial-gradient(circle at top,#020617dd,rgba(15,23,42,.2)),rgba(15,23,42,.85);
+      backdrop-filter:blur(20px);z-index:999;display:flex;align-items:center;justify-content:center;padding:1.5rem;
     }
     .org-card{
-      max-width:960px;
-      width:100%;
-      background:rgba(248,250,252,.04);
-      border:1px solid rgba(255,255,255,.06);
-      border-radius:1.25rem;
-      padding:1.25rem 1.25rem 1rem;
-      box-shadow:0 22px 50px rgba(0,0,0,.25);
+      max-width:960px;width:100%;background:rgba(248,250,252,.04);border:1px solid rgba(255,255,255,.06);
+      border-radius:1.25rem;padding:1.25rem 1.25rem 1rem;box-shadow:0 22px 50px rgba(0,0,0,.25);
     }
     .org-btn{
-      background:rgba(15,23,42,.35);
-      border:1px solid rgba(148,163,184,.25);
-      border-radius:.9rem;
-      padding:.45rem .8rem;
-      font-size:.7rem;
-      color:#e2e8f0;
-      cursor:pointer;
-      transition:.06s;
-      white-space:nowrap;
+      background:rgba(15,23,42,.35);border:1px solid rgba(148,163,184,.25);border-radius:.9rem;padding:.45rem .8rem;
+      font-size:.7rem;color:#e2e8f0;cursor:pointer;transition:.06s;white-space:nowrap;
     }
     .org-btn:hover{background:rgba(248,250,252,.10);}
     .org-btn.active{background:rgba(99,102,241,.95);border-color:transparent;color:#fff;}
 
     /* Modal consent */
     .consent-backdrop{
-      position:fixed;
-      inset:0;
-      background:rgba(15,23,42,.5);
-      backdrop-filter:blur(10px);
-      z-index:1000;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:1rem;
+      position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(10px);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem;
     }
     .consent-body{
-      background:#fff;
-      max-width:360px;
-      width:100%;
-      border-radius:1rem;
-      padding:1rem 1.1rem 1rem;
-      box-shadow:0 16px 35px rgba(15,23,42,.2);
+      background:#fff;max-width:360px;width:100%;border-radius:1rem;padding:1rem 1.1rem 1rem;box-shadow:0 16px 35px rgba(15,23,42,.2);
     }
   </style>
 </head>
@@ -170,7 +119,7 @@
           <button class="org-btn" data-org="HP">HP</button>
           <button class="org-btn" data-org="Tidlor Academy">Tidlor Academy</button>
           <button class="org-btn" data-org="BSCS">BSCS</button>
-          <button class="org-btn" data-org="A&D">A&amp;D</button>
+          <button class="org-btn" data-org="A&amp;D">A&amp;D</button>
           <button class="org-btn" data-org="IT">IT</button>
           <button class="org-btn" data-org="INS-Broker">INS-Broker</button>
           <button class="org-btn" data-org="MKT">MKT</button>
@@ -183,7 +132,7 @@
         </div>
       </div>
 
-      <p class="text-[10px] text-slate-200/50">*ระบบจะถามยืนยันการเก็บข้อมูลก่อนเสมอ</p>
+      <p class="text:[10px] text-slate-200/50">*ระบบจะถามยืนยันการเก็บข้อมูลก่อนเสมอ</p>
     </div>
   </div>
 
@@ -234,11 +183,13 @@
             <h2 class="text-sm font-semibold tracking-tight">ใส่ข้อมูลพื้นฐาน</h2>
             <p class="text-[11px] text-slate-400">ไม่มีเงินเฟ้อ ไม่มีผลตอบแทน คำนวณให้เร็ว</p>
           </div>
+
           <div class="space-y-2">
             <label class="text-[11px] text-slate-600">อายุปัจจุบัน</label>
             <input id="bCurrentAge" type="number" min="18" max="70" value="30" class="input-premium" />
             <p id="bCurrentAgeErr" class="error-text" style="display:none"></p>
           </div>
+
           <div class="grid grid-cols-2 gap-3">
             <div class="space-y-2">
               <label class="text-[11px] text-slate-600">อายุที่ต้องการเกษียณ</label>
@@ -252,16 +203,7 @@
             </div>
           </div>
 
-          <!-- toggle เงินเดือน vs เงินก้อน -->
-          <div class="space-y-2">
-            <p class="text-[11px] text-slate-600 mb-1">เลือกวิธีกรอก</p>
-            <div class="toggle-pill">
-              <button id="bModeMonthly" class="active">ฉันรู้ค่าใช้จ่าย/เดือน</button>
-              <button id="bModeLump">ฉันรู้เงินก้อนที่อยากมี</button>
-            </div>
-          </div>
-
-          <!-- monthly input -->
+          <!-- monthly input only -->
           <div id="bMonthlyGroup" class="space-y-2">
             <label class="text-[11px] text-slate-600">เงินที่ต้องการใช้/เดือนหลังเกษียณ (มูลค่าปัจจุบัน)</label>
             <input id="bNeedPerMonth" type="number" min="3000" step="500" value="30000" class="input-premium" />
@@ -274,21 +216,10 @@
             <input id="bCurrentSaving" type="number" min="0" step="1000" value="0" class="input-premium" />
           </div>
 
-          <!-- lump input -->
-          <div id="bLumpGroup" class="space-y-2 hidden">
-            <label class="text-[11px] text-slate-600">เงินก้อนที่อยากมีในวันเกษียณ</label>
-            <input id="bLumpSumInput" type="number" min="50000" step="10000" value="3000000" class="input-premium" />
-            <p id="bLumpErr" class="error-text" style="display:none"></p>
-            <p class="text-[10px] text-slate-400">ระบบจะแปลงเป็นใช้ต่อปีและต่อเดือนให้</p>
-          </div>
-
           <div class="flex gap-2">
             <button id="bCalcBtn" class="btn-primary flex-1">
               <span class="btn-spinner" aria-hidden="true"></span>
               <span class="btn-text">คำนวณเงินเกษียณ</span>
-            </button>
-            <button id="bDemoBtn" class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 hover:bg-slate-50">
-              ตัวอย่าง
             </button>
           </div>
         </section>
@@ -402,9 +333,6 @@
               <span class="btn-spinner" aria-hidden="true"></span>
               <span class="btn-text">คำนวณแบบมืออาชีพ</span>
             </button>
-            <button id="aDemoBtn" class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 hover:bg-slate-50">
-              ตัวอย่าง
-            </button>
           </div>
         </section>
 
@@ -468,7 +396,7 @@
 
   <script>
     // ====== CONFIG ======
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycby7GiVi-lPcjNFixnFavRxvZ0RsKnF3FyrMyjYRwHk579JkRnt2vxSl_5_MPH8d_LQMRw/exec'; // แทนที่ด้วย URL จาก Web App ของเธอ
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycby7GiVi-lPcjNFixnFavRxvZ0RsKnF3FyrMyjYRwHk579JkRnt2vxSl_5_MPH8d_LQMRw/exec';
 
     const el = id => document.getElementById(id);
 
@@ -561,21 +489,15 @@
     const bRetireAge = el('bRetireAge');
     const bLifeAge = el('bLifeAge');
     const bNeedPerMonth = el('bNeedPerMonth');
-    const bLumpSumInput = el('bLumpSumInput');
-    const bModeMonthly = el('bModeMonthly');
-    const bModeLump = el('bModeLump');
     const bMonthlyGroup = el('bMonthlyGroup');
-    const bLumpGroup = el('bLumpGroup');
     const bCurrentSaving = el('bCurrentSaving');
     const bCalcBtn = el('bCalcBtn');
-    const bDemoBtn = el('bDemoBtn');
 
     // BASIC error refs
     const bCurrentAgeErr = el('bCurrentAgeErr');
     const bRetireAgeErr = el('bRetireAgeErr');
     const bLifeAgeErr = el('bLifeAgeErr');
     const bNeedPerMonthErr = el('bNeedPerMonthErr');
-    const bLumpErr = el('bLumpErr');
     const bGlobalErr = el('bGlobalErr');
 
     // ADV refs
@@ -587,7 +509,6 @@
     const inflation = el('inflation');
     const returnRate = el('returnRate');
     const aCalcBtn = el('aCalcBtn');
-    const aDemoBtn = el('aDemoBtn');
     const inflationSuggestBtn = el('inflationSuggestBtn');
 
     // ADV error refs
@@ -607,9 +528,7 @@
       aCurrentAge.value = bCurrentAge.value;
       aRetireAge.value = bRetireAge.value;
       aLifeAge.value = bLifeAge.value;
-      if(!bMonthlyGroup.classList.contains('hidden')){
-        aNeedPerMonth.value = bNeedPerMonth.value;
-      }
+      aNeedPerMonth.value = bNeedPerMonth.value;
       aCurrentSaving.value = bCurrentSaving.value;
       isSyncing = false;
     }
@@ -619,36 +538,15 @@
       bCurrentAge.value = aCurrentAge.value;
       bRetireAge.value = aRetireAge.value;
       bLifeAge.value = aLifeAge.value;
-      if(!bLumpGroup.classList.contains('hidden')){
-        // ถ้าอยู่โหมดเงินก้อน ไม่ overwrite
-      }else{
-        bNeedPerMonth.value = aNeedPerMonth.value;
-      }
+      bNeedPerMonth.value = aNeedPerMonth.value;
       bCurrentSaving.value = aCurrentSaving.value;
       isSyncing = false;
     }
 
-    // toggle basic input mode
-    bModeMonthly.addEventListener('click', () => {
-      bModeMonthly.classList.add('active');
-      bModeLump.classList.remove('active');
-      bMonthlyGroup.classList.remove('hidden');
-      bLumpGroup.classList.add('hidden');
-      // sync กลับไปฝั่ง advance แต่ไม่บันทึก
-      aNeedPerMonth.value = bNeedPerMonth.value;
-      calcAdvance(false, false);
-    });
-    bModeLump.addEventListener('click', () => {
-      bModeLump.classList.add('active');
-      bModeMonthly.classList.remove('active');
-      bMonthlyGroup.classList.add('hidden');
-      bLumpGroup.classList.remove('hidden');
-    });
-
     // ========== VALIDATION ==========
     function clearBasicErrors(){
-      [bCurrentAge, bRetireAge, bLifeAge, bNeedPerMonth, bLumpSumInput].forEach(i=>i.classList.remove('input-error'));
-      [bCurrentAgeErr, bRetireAgeErr, bLifeAgeErr, bNeedPerMonthErr, bLumpErr, bGlobalErr].forEach(e=>{e.style.display='none'; e.textContent='';});
+      [bCurrentAge, bRetireAge, bLifeAge, bNeedPerMonth].forEach(i=>i.classList.remove('input-error'));
+      [bCurrentAgeErr, bRetireAgeErr, bLifeAgeErr, bNeedPerMonthErr, bGlobalErr].forEach(e=>{e.style.display='none'; e.textContent='';});
     }
     function clearAdvanceErrors(){
       [aCurrentAge, aRetireAge, aLifeAge, aNeedPerMonth, inflation, returnRate].forEach(i=>i.classList.remove('input-error'));
@@ -681,29 +579,18 @@
         bLifeAgeErr.style.display = 'block';
       }
 
-      if(!bMonthlyGroup.classList.contains('hidden')){
-        const m = safeNumber(bNeedPerMonth.value, 0);
-        if(m <= 0){
-          ok = false;
-          bNeedPerMonth.classList.add('input-error');
-          bNeedPerMonthErr.textContent = 'ค่าใช้จ่ายต่อเดือนต้องมากกว่า 0';
-          bNeedPerMonthErr.style.display = 'block';
-        }
-      }else{
-        const lump = safeNumber(bLumpSumInput.value, 0);
-        if(lump <= 0){
-          ok = false;
-          bLumpSumInput.classList.add('input-error');
-          bLumpErr.textContent = 'เงินก้อนที่ต้องการต้องมากกว่า 0';
-          bLumpErr.style.display = 'block';
-        }
+      const m = safeNumber(bNeedPerMonth.value, 0);
+      if(m <= 0){
+        ok = false;
+        bNeedPerMonth.classList.add('input-error');
+        bNeedPerMonthErr.textContent = 'ค่าใช้จ่ายต่อเดือนต้องมากกว่า 0';
+        bNeedPerMonthErr.style.display = 'block';
       }
 
       if(!ok){
         bGlobalErr.textContent = 'พบข้อมูลที่กรอกไม่ถูกต้อง กรุณาแก้ไขก่อนคำนวณ';
         bGlobalErr.style.display = 'block';
       }
-
       return ok;
     }
 
@@ -758,7 +645,6 @@
         aGlobalErr.textContent = 'พบข้อมูลที่กรอกไม่ถูกต้อง กรุณาแก้ไขก่อนคำนวณ';
         aGlobalErr.style.display = 'block';
       }
-
       return ok;
     }
 
@@ -789,17 +675,7 @@
       const yearsAfterRetire = Math.max(lifeAge - retireAge, 1);
       const monthsToSave = Math.max(yearsToRetire * 12, 1);
 
-      let monthlyNeed;
-      let inputMode;
-      if(!bMonthlyGroup.classList.contains('hidden')){
-        monthlyNeed = safeNumber(bNeedPerMonth.value, 0);
-        inputMode = 'monthly';
-      }else{
-        const lump = safeNumber(bLumpSumInput.value, 0);
-        monthlyNeed = (lump / yearsAfterRetire) / 12;
-        inputMode = 'lump';
-      }
-
+      const monthlyNeed = safeNumber(bNeedPerMonth.value, 0);
       const yearlyNeed = monthlyNeed * 12;
       const lumpSum = yearlyNeed * yearsAfterRetire;
 
@@ -820,7 +696,7 @@
       if(logToGAS){
         sendToGAS({
           mode:'basic',
-          inputMode, // monthly / lump
+          inputMode:'monthly',
           orgType:selectedOrgType,
           orgName:selectedOrgName,
           currentAge,
@@ -835,28 +711,13 @@
           yearsAfterRetire
         });
       }
-
       return {ok:true};
     }
 
     bCalcBtn.addEventListener('click', () => {
       bCalcBtn.classList.add('is-loading');
-      calcBasic(true, true); // ✅ คำนวณ + บันทึก
-      setTimeout(() => {
-        bCalcBtn.classList.remove('is-loading');
-      }, 300);
-    });
-
-    bDemoBtn.addEventListener('click', () => {
-      bCurrentAge.value = 32;
-      bRetireAge.value = 58;
-      bLifeAge.value = 85;
-      bNeedPerMonth.value = 40000;
-      bLumpSumInput.value = 3500000;
-      bCurrentSaving.value = 250000;
-      linkBasicToAdvance();
-      calcBasic(false, false);
-      calcAdvance(false, false);
+      calcBasic(true, true);
+      setTimeout(() => bCalcBtn.classList.remove('is-loading'), 300);
     });
 
     // ====== คำนวณ ADV ======
@@ -952,16 +813,13 @@
           yearsAfterRetire
         });
       }
-
       return {ok:true};
     }
 
     aCalcBtn.addEventListener('click', () => {
       aCalcBtn.classList.add('is-loading');
-      calcAdvance(true, true); // ✅ คำนวณ + บันทึก
-      setTimeout(() => {
-        aCalcBtn.classList.remove('is-loading');
-      }, 320);
+      calcAdvance(true, true);
+      setTimeout(() => aCalcBtn.classList.remove('is-loading'), 320);
     });
 
     // ====== SYNC input listeners (ไม่มีการ log) ======
@@ -977,12 +835,8 @@
     aNeedPerMonth.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false, false); });
     aCurrentSaving.addEventListener('input', () => { linkAdvanceToBasic(); calcBasic(false, false); });
 
-    inflation.addEventListener('input', () => {
-      calcAdvance(false, false);
-    });
-    returnRate.addEventListener('input', () => {
-      calcAdvance(false, false);
-    });
+    inflation.addEventListener('input', () => { calcAdvance(false, false); });
+    returnRate.addEventListener('input', () => { calcAdvance(false, false); });
 
     // ปุ่มอัตราเงินเฟ้อที่แนะนำ
     inflationSuggestBtn.addEventListener('click', () => {
@@ -990,30 +844,12 @@
       const retAge = safeNumber(aRetireAge.value, curAge);
       const years = Math.max(retAge - curAge, 0);
       let suggested;
-      if(years < 10){
-        suggested = 2.2;
-      } else if (years < 20){
-        suggested = 2.5;
-      } else if (years < 30){
-        suggested = 2.8;
-      } else {
-        suggested = 3.2;
-      }
+      if(years < 10){ suggested = 2.2; }
+      else if (years < 20){ suggested = 2.5; }
+      else if (years < 30){ suggested = 2.8; }
+      else { suggested = 3.2; }
       inflation.value = suggested.toFixed(1);
       calcAdvance(false, false);
-    });
-
-    aDemoBtn.addEventListener('click', () => {
-      aCurrentAge.value = 35;
-      aRetireAge.value = 60;
-      aLifeAge.value = 88;
-      aNeedPerMonth.value = 45000;
-      aCurrentSaving.value = 500000;
-      inflation.value = 2.7;
-      returnRate.value = 6.5;
-      linkAdvanceToBasic();
-      calcAdvance(false, false);
-      calcBasic(false, false);
     });
 
     function autoAdjustInflation(){
@@ -1031,22 +867,14 @@
     // ===== send to GAS =====
     function sendToGAS(payload){
       if(!selectedOrgName){
-        // ถ้ายังไม่ได้เลือกหน่วยงาน ให้โชว์ overlay อีกครั้ง แต่ไม่บันทึก
         orgOverlay.style.display = 'flex';
         return;
       }
-      const data = {
-        ...payload,
-        ts: new Date().toISOString()
-      };
+      const data = { ...payload, ts: new Date().toISOString() };
       try{
         const fd = new FormData();
         Object.keys(data).forEach(k => fd.append(k, data[k]));
-        fetch(GAS_URL, {
-          method:'POST',
-          body: fd,
-          mode: 'no-cors'
-        }).catch(()=>{});
+        fetch(GAS_URL, { method:'POST', body: fd, mode:'no-cors' }).catch(()=>{});
       }catch(e){}
     }
 
